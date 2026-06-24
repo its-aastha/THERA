@@ -19,9 +19,45 @@ function getAi(): GoogleGenAI {
     if (!key) {
       throw new Error("GEMINI_API_KEY environment variable is required. Please check your secrets panel.");
     }
-    aiClient = new GoogleGenAI({ apiKey: key });
+    aiClient = new GoogleGenAI({
+      apiKey: key,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        }
+      }
+    });
   }
   return aiClient;
+}
+
+// Robust fallback model list to handle high-demand spikes gracefully
+const FALLBACK_MODELS = ["gemini-3.5-flash", "gemini-flash-latest", "gemini-3.1-flash-lite"];
+
+async function generateContentWithFallback(
+  ai: GoogleGenAI,
+  params: {
+    contents: any;
+    config: any;
+  }
+) {
+  let lastError: any = null;
+  for (const model of FALLBACK_MODELS) {
+    try {
+      console.log(`[THERA AI] Attempting generation with model: ${model}`);
+      const response = await ai.models.generateContent({
+        model: model,
+        contents: params.contents,
+        config: params.config,
+      });
+      console.log(`[THERA AI] Generation succeeded with model: ${model}`);
+      return response;
+    } catch (error: any) {
+      console.error(`[THERA AI] Model ${model} failed:`, error.message || error);
+      lastError = error;
+    }
+  }
+  throw lastError;
 }
 
 // Crisis trigger check function
@@ -41,10 +77,30 @@ function checkForCrisis(text: string): boolean {
   return patterns.some((p) => lowercase.includes(p));
 }
 
+// Robust JSON parsing utility to handle optional markdown backticks or malformed strings gracefully
+function parseRobustJson(text: string): any {
+  let cleaned = text.trim();
+  // Strip starting code block if model returned it as markdown
+  if (cleaned.startsWith("```")) {
+    cleaned = cleaned.replace(/^```(?:json|JSON)?\s*/, "");
+    cleaned = cleaned.replace(/\s*```$/, "");
+    cleaned = cleaned.trim();
+  }
+  
+  // Find first '{' and last '}' to extract raw JSON object
+  const firstBrace = cleaned.indexOf("{");
+  const lastBrace = cleaned.lastIndexOf("}");
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+  }
+  
+  return JSON.parse(cleaned);
+}
+
 // 1. AI Therapist Chat Endpoint (with Conversation Memory support and Crisis Detection)
 app.post("/api/chat", async (req, res) => {
+  const { messages, profile, latestMood, latestJournal } = req.body;
   try {
-    const { messages, profile } = req.body;
     if (!messages || !Array.isArray(messages)) {
       return res.status(400).json({ error: "Messages array is required" });
     }
@@ -73,12 +129,20 @@ app.post("/api/chat", async (req, res) => {
     const userName = profile?.name || "there";
     const primaryFocus = profile?.primaryFocus || "general stress and well-being";
     
+    let contextAddition = "";
+    if (latestMood) {
+      contextAddition += `\n- Latest Mood Log: Rated ${latestMood.mood}/5 on ${latestMood.date}, energy: ${latestMood.energy}/5, sleep: ${latestMood.sleep}/5, notes: "${latestMood.notes || 'None'}".`;
+    }
+    if (latestJournal) {
+      contextAddition += `\n- Latest Cognitive Journal Entry on ${latestJournal.date}: "${latestJournal.content}".`;
+    }
+
     const systemInstruction = `You are THERA, a deeply warm, compassionate, and emotionally intelligent human-like Therapist and Mental Health Companion. 
 Your goal is to actively listen, validate the user's feelings, offer gentle therapeutic reflections (using techniques inspired by Cognitive Behavioral Therapy (CBT), Mindfulness, and Compassionate Inquiry), and provide structured, comforting support.
 
 User Details:
 - Name: ${userName}
-- Primary focus area: ${primaryFocus}
+- Primary focus area: ${primaryFocus}${contextAddition}
 
 Rules of conduct for human-like therapeutic expression:
 1. Speak as an exceptionally warm, empathetic, and caring human being. Absolutely avoid any clinical, robotic, or dry AI boilerplate (e.g., never say "As an AI..." or "I don't have feelings...").
@@ -109,13 +173,12 @@ Ensure you output VALID JSON. Return ONLY the raw JSON string without any markdo
       parts: [{ text: m.content }],
     }));
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+    const response = await generateContentWithFallback(ai, {
       contents: contents,
       config: {
         systemInstruction: systemInstruction,
         responseMimeType: "application/json",
-        temperature: 0.7,
+        temperature: 0.85,
       },
     });
 
@@ -124,15 +187,56 @@ Ensure you output VALID JSON. Return ONLY the raw JSON string without any markdo
       throw new Error("No response generated from Gemini API");
     }
 
-    const parsedResponse = JSON.parse(text);
+    const parsedResponse = parseRobustJson(text);
     return res.json(parsedResponse);
   } catch (error: any) {
     console.error("Error in AI Chat endpoint:", error);
-    // Return a fallback response
+    
+    // Dynamic text backup option if JSON parsing or generation fails but service is partially responsive
+    try {
+      const ai = getAi();
+      const lastUserMessage = messages[messages.length - 1]?.content || "Hello";
+      const backupResponse = await generateContentWithFallback(ai, {
+        contents: [{ role: "user", parts: [{ text: `Generate a highly warm, validation-focused comforting therapist reply to: "${lastUserMessage}".` }] }],
+        config: {
+          systemInstruction: "You are THERA, a warm mental health companion. Write 2-3 short comforting, human-like paragraphs.",
+          temperature: 0.8,
+        }
+      });
+      if (backupResponse.text) {
+        return res.status(200).json({
+          reply: backupResponse.text,
+          suggestions: ["Practice 4-7-8 deep breathing", "Reflect on one gentle positive moment today"],
+          detectedEmotions: { calm: 60, anxiety: 40 },
+          crisisLevel: "safe",
+        });
+      }
+    } catch (innerErr) {
+      console.error("Backup text generation failed:", innerErr);
+    }
+
+    // Varied static comforting replies to prevent "the exact same answer" on total disconnect
+    const fallbackOptions = [
+      {
+        reply: "I am holding space for you. Sometimes our minds need a brief quiet pause. Please share how you are feeling, and know I am listening with deep compassion.",
+        suggestions: ["Take a slow, deep breath in...", "Close your eyes for thirty seconds", "Describe one soothing thing in your environment"]
+      },
+      {
+        reply: "Your feelings are completely valid, and I am right here beside you in this quiet moment. Whenever you are ready to share more of what's on your mind, I am here to support you.",
+        suggestions: ["Focus on your current breathing rhythm", "Write down whatever comes to mind without judgment", "Ground yourself with a cool glass of water"]
+      },
+      {
+        reply: "I can feel the depth of what you are carrying. Please know you don't have to navigate it alone. Take a gentle breath, and share whatever thoughts feel right to voice.",
+        suggestions: ["Release the tension in your shoulders", "Inhale peace, exhale tension", "Take things one gentle step at a time"]
+      }
+    ];
+
+    const randomFallback = fallbackOptions[Math.floor(Math.random() * fallbackOptions.length)];
+    
     return res.status(200).json({
-      reply: "I'm having a brief moment of reflection. Please tell me more about how you are feeling, and I am right here with you.",
-      suggestions: ["Take a slow, deep breath in...", "Write down one thing in front of you", "Share a bit more about what's on your mind"],
-      detectedEmotions: { calm: 40, anxiety: 50 },
+      reply: randomFallback.reply,
+      suggestions: randomFallback.suggestions,
+      detectedEmotions: { calm: 50, anxiety: 50 },
       crisisLevel: "safe",
       error: error.message
     });
@@ -183,8 +287,7 @@ Output your analysis strictly in JSON format with the following keys:
 }
 Ensure you output VALID, PARSABLE JSON.`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+    const response = await generateContentWithFallback(ai, {
       contents: [{ role: "user", parts: [{ text: content }] }],
       config: {
         systemInstruction: systemPrompt,
@@ -198,7 +301,7 @@ Ensure you output VALID, PARSABLE JSON.`;
       throw new Error("Empty analysis from Gemini");
     }
 
-    const parsed = JSON.parse(text);
+    const parsed = parseRobustJson(text);
     return res.json(parsed);
   } catch (error: any) {
     console.error("Journal analysis error:", error);

@@ -143,6 +143,9 @@ export default function App() {
         content: m.content
       }));
 
+      const latestMood = moodLogs[0] || null;
+      const latestJournal = journals[0] || null;
+
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -151,7 +154,9 @@ export default function App() {
           profile: {
             name: profile.name,
             primaryFocus: profile.primaryFocus
-          }
+          },
+          latestMood,
+          latestJournal
         })
       });
 
