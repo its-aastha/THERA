@@ -1,0 +1,361 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Custom subtle glassmorphism and ambient glow classes */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glow-teal {
+  box-shadow: 0 0 25px rgba(20, 184, 166, 0.15);
+}
+
+.glow-violet {
+  box-shadow: 0 0 25px rgba(139, 92, 246, 0.15);
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Animations */
+@keyframes breathe {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+    box-shadow: 0 0 15px rgba(20, 184, 166, 0.2);
+  }
+  50% {
+    transform: scale(1.6);
+    opacity: 1;
+    box-shadow: 0 0 45px rgba(20, 184, 166, 0.6);
+  }
+}
+
+.breathing-circle {
+  animation: breathe var(--breathe-duration, 8s) ease-in-out infinite;
+}
+
+/* ==========================================================================
+   DYNAMIC THEME OVERRIDES (Dark & High Contrast)
+   ========================================================================== */
+
+/* --- 1. DARK THEME OVERRIDES --- */
+[data-theme="dark"] {
+  background-color: #0f172a !important; /* slate-900 */
+  color: #f8fafc !important; /* slate-50 */
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  letter-spacing: 0.015em !important; /* slightly increased tracking for dark mode legibility */
+}
+
+[data-theme="dark"] body {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif !important;
+}
+
+/* Dark mode scrollbar */
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: #0f172a !important;
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Backgrounds mapping to slate-900 or slate-800 */
+[data-theme="dark"] .bg-slate-50,
+[data-theme="dark"] .bg-slate-50\/50,
+[data-theme="dark"] .bg-slate-100,
+[data-theme="dark"] .bg-slate-100\/50,
+[data-theme="dark"] .bg-slate-50\/40,
+[data-theme="dark"] .bg-slate-50\/70,
+[data-theme="dark"] .bg-indigo-50\/40,
+[data-theme="dark"] .min-h-screen.bg-slate-50 {
+  background-color: #0f172a !important;
+}
+
+[data-theme="dark"] .bg-white,
+[data-theme="dark"] .bg-white\/80 {
+  background-color: #1e293b !important; /* slate-800 */
+}
+
+/* Panel containers (cards, sidebar, list-items) */
+[data-theme="dark"] aside.bg-white,
+[data-theme="dark"] .bg-white.border {
+  background-color: #1e293b !important;
+}
+
+[data-theme="dark"] .bg-indigo-50 {
+  background-color: #312e81 !important; /* indigo-900 */
+  color: #e0e7ff !important;
+}
+
+[data-theme="dark"] .bg-indigo-50\/50 {
+  background-color: rgba(49, 46, 129, 0.5) !important;
+}
+
+[data-theme="dark"] .bg-emerald-50 {
+  background-color: #064e3b !important; /* emerald-900 */
+  color: #d1fae5 !important;
+}
+
+[data-theme="dark"] .bg-red-50 {
+  background-color: #7f1d1d !important; /* red-900 */
+  color: #fee2e2 !important;
+}
+
+[data-theme="dark"] .bg-amber-50 {
+  background-color: #78350f !important; /* amber-900 */
+  color: #fef3c7 !important;
+}
+
+/* Text overrides */
+[data-theme="dark"] .text-slate-900,
+[data-theme="dark"] .text-slate-800,
+[data-theme="dark"] .text-slate-750,
+[data-theme="dark"] .text-slate-700,
+[data-theme="dark"] .text-slate-650 {
+  color: #f8fafc !important; /* slate-50 */
+}
+
+[data-theme="dark"] .text-slate-600,
+[data-theme="dark"] .text-slate-500 {
+  color: #94a3b8 !important; /* slate-400 */
+}
+
+[data-theme="dark"] .text-slate-400 {
+  color: #64748b !important; /* slate-500 */
+}
+
+[data-theme="dark"] .text-indigo-600,
+[data-theme="dark"] .text-indigo-700 {
+  color: #818cf8 !important; /* indigo-400 */
+}
+
+[data-theme="dark"] .text-emerald-600,
+[data-theme="dark"] .text-emerald-700 {
+  color: #34d399 !important; /* emerald-400 */
+}
+
+[data-theme="dark"] .text-red-600,
+[data-theme="dark"] .text-red-700 {
+  color: #f87171 !important; /* red-400 */
+}
+
+[data-theme="dark"] .text-amber-600,
+[data-theme="dark"] .text-amber-700 {
+  color: #fbbf24 !important; /* amber-400 */
+}
+
+/* Borders */
+[data-theme="dark"] .border-slate-200,
+[data-theme="dark"] .border-slate-100,
+[data-theme="dark"] .border-b-slate-100,
+[data-theme="dark"] .border-t-slate-100,
+[data-theme="dark"] .border-slate-200\/60 {
+  border-color: #334155 !important; /* slate-700 */
+}
+
+[data-theme="dark"] .border-indigo-100,
+[data-theme="dark"] .border-indigo-200 {
+  border-color: #4338ca !important; /* indigo-700 */
+}
+
+[data-theme="dark"] .border-red-200 {
+  border-color: #991b1b !important;
+}
+
+/* Inputs & Form Controls */
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] input:focus,
+[data-theme="dark"] select:focus,
+[data-theme="dark"] textarea:focus {
+  border-color: #818cf8 !important;
+  outline: none;
+}
+
+/* Charts / SVG texts */
+[data-theme="dark"] svg text {
+  fill: #94a3b8 !important;
+}
+
+
+/* --- 2. HIGH CONTRAST THEME OVERRIDES --- */
+[data-theme="high-contrast"] {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace !important;
+}
+
+[data-theme="high-contrast"] body {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace !important;
+}
+
+/* Force monospace font on all child elements for absolute legibility under high-contrast */
+[data-theme="high-contrast"] * {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace !important;
+  box-shadow: none !important; /* Disable all blurred shadows which degrade high contrast readability */
+}
+
+/* Backgrounds to pure black */
+[data-theme="high-contrast"] .bg-slate-50,
+[data-theme="high-contrast"] .bg-slate-50\/50,
+[data-theme="high-contrast"] .bg-slate-100,
+[data-theme="high-contrast"] .bg-slate-100\/50,
+[data-theme="high-contrast"] .bg-white,
+[data-theme="high-contrast"] .bg-white\/80,
+[data-theme="high-contrast"] .bg-slate-50\/40,
+[data-theme="high-contrast"] .bg-slate-50\/70,
+[data-theme="high-contrast"] .bg-indigo-50\/40,
+[data-theme="high-contrast"] .min-h-screen.bg-slate-50 {
+  background-color: #000000 !important;
+}
+
+[data-theme="high-contrast"] aside.bg-white,
+[data-theme="high-contrast"] .bg-white.border {
+  background-color: #000000 !important;
+}
+
+[data-theme="high-contrast"] .bg-indigo-50,
+[data-theme="high-contrast"] .bg-indigo-50\/50 {
+  background-color: #000000 !important;
+  border: 2px solid #ffffff !important;
+  color: #ffffff !important;
+}
+
+[data-theme="high-contrast"] .bg-emerald-50,
+[data-theme="high-contrast"] .bg-emerald-50\/50 {
+  background-color: #000000 !important;
+  border: 2px solid #ffffff !important;
+  color: #ffffff !important;
+}
+
+[data-theme="high-contrast"] .bg-red-50,
+[data-theme="high-contrast"] .bg-red-50\/50 {
+  background-color: #000000 !important;
+  border: 2px solid #ffffff !important;
+  color: #ffffff !important;
+}
+
+[data-theme="high-contrast"] .bg-amber-50,
+[data-theme="high-contrast"] .bg-amber-50\/50 {
+  background-color: #000000 !important;
+  border: 2px solid #ffffff !important;
+  color: #ffffff !important;
+}
+
+/* Text overrides (pure white text with extra weights) */
+[data-theme="high-contrast"] .text-slate-900,
+[data-theme="high-contrast"] .text-slate-800,
+[data-theme="high-contrast"] .text-slate-750,
+[data-theme="high-contrast"] .text-slate-700,
+[data-theme="high-contrast"] .text-slate-650,
+[data-theme="high-contrast"] .text-slate-600,
+[data-theme="high-contrast"] .text-slate-500,
+[data-theme="high-contrast"] .text-slate-400 {
+  color: #ffffff !important;
+  font-weight: 500 !important;
+}
+
+[data-theme="high-contrast"] .text-indigo-600,
+[data-theme="high-contrast"] .text-indigo-700,
+[data-theme="high-contrast"] .text-emerald-600,
+[data-theme="high-contrast"] .text-emerald-700,
+[data-theme="high-contrast"] .text-red-600,
+[data-theme="high-contrast"] .text-red-700,
+[data-theme="high-contrast"] .text-amber-600,
+[data-theme="high-contrast"] .text-amber-700 {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+/* Borders (thick, stark white) */
+[data-theme="high-contrast"] .border-slate-200,
+[data-theme="high-contrast"] .border-slate-100,
+[data-theme="high-contrast"] .border-b-slate-100,
+[data-theme="high-contrast"] .border-t-slate-100,
+[data-theme="high-contrast"] .border-slate-200\/60,
+[data-theme="high-contrast"] .border-indigo-100,
+[data-theme="high-contrast"] .border-indigo-200,
+[data-theme="high-contrast"] .border-red-200 {
+  border-color: #ffffff !important;
+  border-width: 2px !important;
+}
+
+/* Inputs & Form Controls */
+[data-theme="high-contrast"] input,
+[data-theme="high-contrast"] select,
+[data-theme="high-contrast"] textarea {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+  border-width: 2px !important;
+}
+
+[data-theme="high-contrast"] input:focus,
+[data-theme="high-contrast"] select:focus,
+[data-theme="high-contrast"] textarea:focus {
+  border-color: #ffffff !important;
+  border-width: 2px !important;
+  outline: none;
+}
+
+/* Action button inversion for supreme accessibility */
+[data-theme="high-contrast"] .bg-indigo-600,
+[data-theme="high-contrast"] .hover:bg-indigo-55,
+[data-theme="high-contrast"] .bg-red-600,
+[data-theme="high-contrast"] .bg-emerald-600 {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #ffffff !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="high-contrast"] .bg-indigo-600 *,
+[data-theme="high-contrast"] .bg-red-600 *,
+[data-theme="high-contrast"] .bg-emerald-600 * {
+  color: #000000 !important;
+  stroke: #000000 !important;
+}
+
+/* Charts / SVG texts */
+[data-theme="high-contrast"] svg text {
+  fill: #ffffff !important;
+}

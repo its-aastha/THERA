@@ -1,0 +1,6 @@
+{
+  "name": "MindEase - AI Therapist & Mental Health Companion",
+  "description": "An AI-powered mental health support system featuring secure Google Authentication, daily mood tracking, guided breathing exercises, interactive AI therapeutic chats, cognitive journaling with emotion analysis, and mental health analytics dashboards.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

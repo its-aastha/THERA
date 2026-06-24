@@ -1,0 +1,431 @@
+import React, { useState, useEffect } from "react";
+import { onAuthStateChanged, signOut, User } from "firebase/auth";
+import { auth } from "./lib/firebase";
+import { 
+  getProfile, 
+  saveProfile, 
+  getMoodLogs, 
+  saveMoodLog, 
+  getJournalEntries, 
+  saveJournalEntry, 
+  deleteJournalEntry, 
+  getGratitudeItems, 
+  saveGratitudeItem, 
+  getChatHistory, 
+  saveChatHistory 
+} from "./lib/db";
+import { UserProfile, MoodLog, JournalEntry, ChatMessage, GratitudeItem, JournalAnalysis } from "./types";
+
+// Import Custom Modular Components
+import Sidebar from "./components/Sidebar";
+import CrisisModal from "./components/CrisisModal";
+import MoodLogModal from "./components/MoodLogModal";
+import AuthScreen from "./components/AuthScreen";
+import Dashboard from "./components/Dashboard";
+import TherapistChat from "./components/TherapistChat";
+import CognitiveJournal from "./components/CognitiveJournal";
+import ProfileSettings from "./components/ProfileSettings";
+import BreathingWidget from "./components/BreathingWidget";
+
+export default function App() {
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [moodLogs, setMoodLogs] = useState<MoodLog[]>([]);
+  const [journals, setJournals] = useState<JournalEntry[]>([]);
+  const [gratitudeItems, setGratitudeItems] = useState<GratitudeItem[]>([]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  
+  // App navigation state
+  const [currentTab, setCurrentTab] = useState<string>("dashboard");
+  const [loading, setLoading] = useState(true);
+
+  // Modals / Overlays triggers
+  const [isCheckInOpen, setIsCheckInOpen] = useState(false);
+  const [isCrisisOpen, setIsCrisisOpen] = useState(false);
+
+  // Endpoint loading states
+  const [isGeneratingChat, setIsGeneratingChat] = useState(false);
+  const [isAnalyzingJournal, setIsAnalyzingJournal] = useState(false);
+  const [latestJournalAnalysis, setLatestJournalAnalysis] = useState<JournalAnalysis | null>(null);
+
+  // 1. Listen for Firebase Auth changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        // Load secure user specific datasets
+        const isAnonymous = currentUser.isAnonymous;
+        const activeEmail = currentUser.email || (isAnonymous ? "guest@mindease.co" : `${currentUser.uid.substring(0,8)}@mindease.co`);
+        const userProfile = await getProfile(currentUser.uid, activeEmail);
+        
+        if (isAnonymous && (userProfile.name === "Friend" || !userProfile.name)) {
+          userProfile.name = "Guest Mindful Traveler";
+        }
+        setProfile(userProfile);
+
+        const moods = await getMoodLogs(currentUser.uid);
+        setMoodLogs(moods);
+
+        const loadedJournals = await getJournalEntries(currentUser.uid);
+        setJournals(loadedJournals);
+
+        const gratitude = await getGratitudeItems(currentUser.uid);
+        setGratitudeItems(gratitude);
+
+        const chat = await getChatHistory(currentUser.uid);
+        setChatMessages(chat);
+      } else {
+        setUser(null);
+        setProfile(null);
+        setMoodLogs([]);
+        setJournals([]);
+        setGratitudeItems([]);
+        setChatMessages([]);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Theme synchronization effect
+  useEffect(() => {
+    if (profile?.theme) {
+      document.documentElement.setAttribute("data-theme", profile.theme);
+    } else {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  }, [profile?.theme]);
+
+  // 2. Log out controller
+  const handleLogout = async () => {
+    setLoading(true);
+    try {
+      await signOut(auth);
+    } catch (err) {
+      console.error("Sign out failed:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 3. Daily check-in logger save callback
+  const handleSaveCheckIn = async (newLog: Omit<MoodLog, "id" | "userId">) => {
+    if (!user) return;
+    const logged = await saveMoodLog(user.uid, newLog);
+    setMoodLogs((prev) => [logged, ...prev.filter((l) => l.date !== logged.date)]);
+  };
+
+  // 4. Send chat message callback (Cognitive Memory + Crisis Auto-trigger)
+  const handleSendChatMessage = async (text: string) => {
+    if (!user || !profile) return;
+
+    // Append raw user message locally
+    const userMsg: ChatMessage = {
+      id: `chat_${Date.now()}_u`,
+      userId: user.uid,
+      role: "user",
+      content: text,
+      timestamp: Date.now(),
+    };
+
+    const updatedHistory = [...chatMessages, userMsg];
+    setChatMessages(updatedHistory);
+    await saveChatHistory(user.uid, updatedHistory);
+
+    setIsGeneratingChat(true);
+
+    try {
+      // Post full recent context to our secure server Express route
+      // We take the last 15 messages to preserve memory without exceeding model tokens
+      const requestContext = updatedHistory.slice(-15).map((m) => ({
+        role: m.role,
+        content: m.content
+      }));
+
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: requestContext,
+          profile: {
+            name: profile.name,
+            primaryFocus: profile.primaryFocus
+          }
+        })
+      });
+
+      if (!res.ok) {
+        throw new Error("Therapist route error");
+      }
+
+      const responseData = await res.json();
+
+      // If sever crisis trigger detected, pop crisis support hotline modal immediately!
+      if (responseData.crisisDetected) {
+        setIsCrisisOpen(true);
+      }
+
+      const aiMsg: ChatMessage = {
+        id: `chat_${Date.now()}_ai`,
+        userId: user.uid,
+        role: "assistant",
+        content: responseData.reply,
+        timestamp: Date.now(),
+        detectedEmotions: responseData.detectedEmotions,
+        suggestions: responseData.suggestions,
+        crisisDetected: responseData.crisisDetected || false
+      };
+
+      const finalHistory = [...updatedHistory, aiMsg];
+      setChatMessages(finalHistory);
+      await saveChatHistory(user.uid, finalHistory);
+
+    } catch (err) {
+      console.error("Express Chat transmission error:", err);
+      // Fallback model support
+      const fallbackMsg: ChatMessage = {
+        id: `chat_${Date.now()}_ai`,
+        userId: user.uid,
+        role: "assistant",
+        content: "I am holding a silent reflection with you. I may have disconnected from the MindEase cloud briefly, but please know I am right here listening. Please continue typing whenever you are ready.",
+        timestamp: Date.now(),
+        suggestions: ["Grounding exercise", "Take a deep breath"],
+      };
+      setChatMessages((prev) => [...prev, fallbackMsg]);
+    } finally {
+      setIsGeneratingChat(false);
+    }
+  };
+
+  // 5. Save Cognitive Journal log callback (analyzes text, auto extracts gratitude)
+  const handleSaveJournalEntry = async (journalContent: string) => {
+    if (!user) return;
+    setIsAnalyzingJournal(true);
+
+    try {
+      const res = await fetch("/api/journal/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: journalContent })
+      });
+
+      if (!res.ok) throw new Error("CBT analyze route error");
+
+      const data = await res.json();
+      
+      // If severe crisis triggered from journal, pop Crisis Modal immediately!
+      if (data.crisisDetected) {
+        setIsCrisisOpen(true);
+      }
+
+      const todayString = new Date().toISOString().split("T")[0];
+
+      // Formulate final Journal log with analysis schemas
+      const entry: Omit<JournalEntry, "id" | "userId"> = {
+        content: journalContent,
+        date: todayString,
+        analysis: {
+          reflection: data.reflection,
+          emotions: data.emotions,
+          gratitudeItems: data.gratitudeItems || [],
+          crisisLevel: data.crisisLevel || "safe",
+          cognitiveTriggers: data.cognitiveTriggers || [],
+          crisisDetected: data.crisisDetected || false
+        }
+      };
+
+      const savedEntry = await saveJournalEntry(user.uid, entry);
+      setJournals((prev) => [savedEntry, ...prev]);
+      setLatestJournalAnalysis(entry.analysis as JournalAnalysis);
+
+      // Auto-extract gratitude items and save them to database collection!
+      if (data.gratitudeItems && data.gratitudeItems.length > 0) {
+        for (const itemText of data.gratitudeItems) {
+          const grat = await saveGratitudeItem(user.uid, itemText, todayString);
+          setGratitudeItems((prev) => [grat, ...prev]);
+        }
+      }
+
+    } catch (err) {
+      console.error("Journal analysis error:", err);
+      const fallbackEntry = await saveJournalEntry(user.uid, {
+        content: journalContent,
+        date: new Date().toISOString().split("T")[0],
+      });
+      setJournals((prev) => [fallbackEntry, ...prev]);
+    } finally {
+      setIsAnalyzingJournal(false);
+    }
+  };
+
+  // Delete Journal
+  const handleDeleteJournal = async (id: string) => {
+    if (!user) return;
+    await deleteJournalEntry(user.uid, id);
+    setJournals((prev) => prev.filter((j) => j.id !== id));
+  };
+
+  // Add Custom Gratitude
+  const handleAddGratitude = async (text: string) => {
+    if (!user) return;
+    const todayString = new Date().toISOString().split("T")[0];
+    const item = await saveGratitudeItem(user.uid, text, todayString);
+    setGratitudeItems((prev) => [item, ...prev]);
+  };
+
+  // Save Settings
+  const handleSaveProfile = async (updated: UserProfile) => {
+    if (!user) return;
+    await saveProfile(user.uid, updated);
+    setProfile(updated);
+  };
+
+  // Clear data sovereignty
+  const handleClearAllData = async () => {
+    if (!user) return;
+    localStorage.clear();
+    // Overwrite to empty
+    await saveProfile(user.uid, {
+      name: "Friend",
+      email: user.email || "",
+      primaryFocus: "stress relief",
+      reminderTime: "21:00",
+      notificationsEnabled: true,
+      privacyMode: false
+    });
+    setMoodLogs([]);
+    setJournals([]);
+    setGratitudeItems([]);
+    setChatMessages([]);
+    setCurrentTab("dashboard");
+  };
+
+  // Dynamic authentication success handler
+  const handleAuthSuccess = async (authenticatedUser: any) => {
+    setUser(authenticatedUser);
+    setLoading(true);
+
+    const isAnonymous = authenticatedUser.isAnonymous || authenticatedUser.uid === "guest_user_123";
+    const activeEmail = authenticatedUser.email || (isAnonymous ? "guest@mindease.co" : `${authenticatedUser.uid.substring(0,8)}@mindease.co`);
+    
+    // Load or create secure user profile
+    const userProfile = await getProfile(authenticatedUser.uid, activeEmail);
+    if (isAnonymous) {
+      userProfile.name = userProfile.name === "Friend" || !userProfile.name ? "Guest Mindful Traveler" : userProfile.name;
+    }
+    setProfile(userProfile);
+
+    // Fetch and sync all user-specific collections
+    const moods = await getMoodLogs(authenticatedUser.uid);
+    setMoodLogs(moods);
+
+    const loadedJournals = await getJournalEntries(authenticatedUser.uid);
+    setJournals(loadedJournals);
+
+    const gratitude = await getGratitudeItems(authenticatedUser.uid);
+    setGratitudeItems(gratitude);
+
+    const chat = await getChatHistory(authenticatedUser.uid);
+    setChatMessages(chat);
+
+    setLoading(false);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center font-sans">
+        <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+        <span className="font-mono text-xs text-slate-500 mt-4 uppercase tracking-widest">Opening MindEase Sanctuary...</span>
+      </div>
+    );
+  }
+
+  // If unauthorized, present comforting Auth screen
+  if (!user || !profile) {
+    return <AuthScreen onAuthSuccess={handleAuthSuccess} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row text-slate-800 font-sans selection:bg-indigo-600 selection:text-white">
+      
+      {/* Side Navigation panel */}
+      <Sidebar 
+        currentTab={currentTab}
+        setCurrentTab={setCurrentTab}
+        userEmail={profile.email}
+        userName={profile.name}
+        onLogout={handleLogout}
+        onTriggerCrisis={() => setIsCrisisOpen(true)}
+        theme={profile.theme || "light"}
+        onThemeChange={async (newTheme) => {
+          const updatedProfile = { ...profile, theme: newTheme };
+          setProfile(updatedProfile);
+          await saveProfile(user.uid, updatedProfile);
+        }}
+      />
+
+      {/* Main Sanctuary content workspace area */}
+      <main className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 max-h-screen">
+        {currentTab === "dashboard" && (
+          <Dashboard 
+            userId={user.uid}
+            profile={profile}
+            moodLogs={moodLogs}
+            journals={journals}
+            gratitudeItems={gratitudeItems}
+            onOpenCheckIn={() => setIsCheckInOpen(true)}
+            onNavigateTab={(tab) => setCurrentTab(tab)}
+          />
+        )}
+
+        {currentTab === "chat" && (
+          <TherapistChat 
+            userId={user.uid}
+            profile={profile}
+            messages={chatMessages}
+            onSendMessage={handleSendChatMessage}
+            isGenerating={isGeneratingChat}
+            onSelectBreathing={() => setCurrentTab("breathing")}
+          />
+        )}
+
+        {currentTab === "journal" && (
+          <CognitiveJournal 
+            userId={user.uid}
+            entries={journals}
+            gratitudeItems={gratitudeItems}
+            onSaveEntry={handleSaveJournalEntry}
+            onDeleteEntry={handleDeleteJournal}
+            onAddGratitude={handleAddGratitude}
+            isAnalyzing={isAnalyzingJournal}
+            latestAnalysis={latestJournalAnalysis}
+          />
+        )}
+
+        {currentTab === "breathing" && <BreathingWidget />}
+
+        {currentTab === "settings" && (
+          <ProfileSettings 
+            profile={profile}
+            onSave={handleSaveProfile}
+            onClearAllData={handleClearAllData}
+          />
+        )}
+      </main>
+
+      {/* Unified Modals layer */}
+      <MoodLogModal 
+        isOpen={isCheckInOpen}
+        onClose={() => setIsCheckInOpen(false)}
+        onSave={handleSaveCheckIn}
+      />
+
+      <CrisisModal 
+        isOpen={isCrisisOpen}
+        onClose={() => setIsCrisisOpen(false)}
+      />
+
+    </div>
+  );
+}
