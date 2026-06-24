@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { Play, Pause, RotateCcw, Heart, Info, Eye, EyeOff, Wind } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Play, Pause, RotateCcw, Heart, Info, Eye, EyeOff, Wind, Volume2, VolumeX, Bell } from "lucide-react";
+import { BreathingAudioEngine } from "../lib/audio";
 
 interface BreathingMode {
   name: string;
@@ -44,14 +45,40 @@ export default function BreathingWidget() {
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [totalCycles, setTotalCycles] = useState(0);
   const [hideInstruction, setHideInstruction] = useState(false);
+  
+  // Audio configuration states
+  const [useDrone, setUseDrone] = useState(false);
+  const [useChime, setUseChime] = useState(true);
+  const audioEngineRef = useRef<BreathingAudioEngine | null>(null);
 
   const mode = MODES[selectedModeIdx];
+
+  // Initialize AudioEngine on mount, clean up on unmount
+  useEffect(() => {
+    audioEngineRef.current = new BreathingAudioEngine();
+    return () => {
+      if (audioEngineRef.current) {
+        audioEngineRef.current.stopDrone();
+      }
+    };
+  }, []);
+
+  // Sync background drone play/pause status
+  useEffect(() => {
+    if (isActive && useDrone) {
+      audioEngineRef.current?.startDrone();
+      audioEngineRef.current?.setStage(stage, secondsLeft || mode.inhale);
+    } else {
+      audioEngineRef.current?.stopDrone();
+    }
+  }, [isActive, useDrone]);
 
   // Stop/reset when mode changes
   useEffect(() => {
     setIsActive(false);
     setStage("Ready");
     setSecondsLeft(0);
+    audioEngineRef.current?.stopDrone();
   }, [selectedModeIdx]);
 
   useEffect(() => {
@@ -93,6 +120,20 @@ export default function BreathingWidget() {
 
         setStage(nextStage);
         setSecondsLeft(duration);
+
+        // Transition sound feedback
+        if (useChime && nextStage !== "Ready") {
+          let pitch = 293.66; // D4 default
+          if (nextStage === "Inhale") pitch = 293.66;      // Grounding D4
+          else if (nextStage === "Hold") pitch = 369.99;     // Soothing F#4
+          else if (nextStage === "Exhale") pitch = 440.00;   // Expanding A4
+          else if (nextStage === "Hold (Out)") pitch = 220.00; // Low hum D3
+          audioEngineRef.current?.playChime(pitch);
+        }
+
+        if (useDrone) {
+          audioEngineRef.current?.setStage(nextStage, duration);
+        }
       } else {
         timer = setTimeout(() => {
           setSecondsLeft((prev) => prev - 1);
@@ -105,15 +146,23 @@ export default function BreathingWidget() {
     return () => {
       if (timer) clearTimeout(timer);
     };
-  }, [isActive, secondsLeft, stage, mode]);
+  }, [isActive, secondsLeft, stage, mode, useChime, useDrone]);
 
   const toggleActive = () => {
     if (!isActive) {
       setIsActive(true);
       setStage("Inhale");
       setSecondsLeft(mode.inhale);
+      if (useChime) {
+        audioEngineRef.current?.playChime(293.66);
+      }
+      if (useDrone) {
+        audioEngineRef.current?.startDrone();
+        audioEngineRef.current?.setStage("Inhale", mode.inhale);
+      }
     } else {
       setIsActive(false);
+      audioEngineRef.current?.stopDrone();
     }
   };
 
@@ -122,6 +171,7 @@ export default function BreathingWidget() {
     setStage("Ready");
     setSecondsLeft(0);
     setTotalCycles(0);
+    audioEngineRef.current?.stopDrone();
   };
 
   // Determine circle color and scaling classes based on stage
@@ -279,7 +329,39 @@ export default function BreathingWidget() {
           </div>
 
           {/* Core Controls */}
-          <div className="space-y-4 text-center mt-4">
+          <div className="space-y-4 text-center mt-4 w-full max-w-md mx-auto">
+            {/* Audio Settings Strip */}
+            <div className="flex items-center justify-between bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs text-slate-600 mb-2">
+              <span className="font-semibold text-[11px] text-slate-500 uppercase tracking-wider font-sans">Audio Enhancements</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setUseDrone((prev) => !prev)}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
+                    useDrone
+                      ? "bg-indigo-600 border-indigo-600 text-white font-medium"
+                      : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                  }`}
+                  title={useDrone ? "Disable Ambient Wave" : "Enable Ambient Wave"}
+                >
+                  {useDrone ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5 text-slate-400" />}
+                  <span>Wave Drone</span>
+                </button>
+
+                <button
+                  onClick={() => setUseChime((prev) => !prev)}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
+                    useChime
+                      ? "bg-indigo-600 border-indigo-600 text-white font-medium"
+                      : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                  }`}
+                  title={useChime ? "Disable Cycle Chimes" : "Enable Cycle Chimes"}
+                >
+                  <Bell className={`w-3.5 h-3.5 ${useChime ? "text-amber-200 fill-amber-200" : "text-slate-400"}`} />
+                  <span>Cycle Chimes</span>
+                </button>
+              </div>
+            </div>
+
             <div className="flex items-center justify-center gap-4">
               <button
                 onClick={toggleActive}
