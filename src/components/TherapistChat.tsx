@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ChatMessage, UserProfile, Emotions } from "../types";
-import { Send, Sparkles, HelpCircle, AlertOctagon, Heart, Brain, Wind } from "lucide-react";
+import { Send, Sparkles, HelpCircle, AlertOctagon, Heart, Brain, Wind, X } from "lucide-react";
 
 interface TherapistChatProps {
   userId: string;
@@ -20,6 +20,7 @@ export default function TherapistChat({
   onSelectBreathing
 }: TherapistChatProps) {
   const [inputText, setInputText] = useState("");
+  const [showMobileStats, setShowMobileStats] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Auto scroll to bottom of chat
@@ -84,10 +85,20 @@ export default function TherapistChat({
               <p className="text-[10px] font-mono tracking-wider text-indigo-600 uppercase">Interactive CBT & Reflection Mode</p>
             </div>
           </div>
-          <span className="flex items-center gap-1 text-[10px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full font-bold">
-            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
-            <span>Memory Active</span>
-          </span>
+          <div className="flex items-center gap-2">
+            <button 
+              type="button"
+              onClick={() => setShowMobileStats(true)}
+              className="lg:hidden flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 rounded-lg transition-colors cursor-pointer"
+            >
+              <Sparkles className="w-3 h-3 text-indigo-500 animate-pulse" />
+              <span>Emotions</span>
+            </button>
+            <span className="hidden sm:flex items-center gap-1 text-[10px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full font-bold">
+              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
+              <span>Memory Active</span>
+            </span>
+          </div>
         </div>
 
         {/* Scrollable messages zone */}
@@ -200,8 +211,8 @@ export default function TherapistChat({
 
       </div>
 
-      {/* Side Emotional Mapping Display (4 Cols) */}
-      <div className="lg:col-span-4 flex flex-col gap-6">
+      {/* Side Emotional Mapping Display (4 Cols) - Hidden on mobile/tablets, shown on lg screens */}
+      <div className="lg:col-span-4 hidden lg:flex flex-col gap-6">
         
         {/* Active Emotions analysis */}
         <div className="p-6 bg-white border border-slate-200 shadow-sm rounded-2xl space-y-4">
@@ -282,6 +293,105 @@ export default function TherapistChat({
         </div>
 
       </div>
+
+      {/* Mobile Stats & Grounding Options Modal */}
+      {showMobileStats && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs lg:hidden animate-fade-in">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-sm w-full overflow-hidden flex flex-col max-h-[90vh]">
+            {/* Modal Header */}
+            <div className="px-5 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-indigo-600 animate-pulse" />
+                <span className="font-sans font-bold text-slate-800 text-sm">Dynamic Emotions & Coping</span>
+              </div>
+              <button 
+                onClick={() => setShowMobileStats(false)}
+                className="p-1 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-5 overflow-y-auto space-y-6">
+              {/* Active Emotions analysis */}
+              <div className="space-y-3">
+                <div>
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Real-time Active Emotions</h4>
+                  <p className="text-[11px] text-slate-500">Calculated dynamic response analysis.</p>
+                </div>
+
+                <div className="space-y-3 pt-1">
+                  {activeEmotions ? (
+                    Object.entries(activeEmotions).map(([emotion, score]) => {
+                      const barColors: { [key: string]: string } = {
+                        calm: "bg-indigo-500",
+                        joy: "bg-emerald-500",
+                        anxiety: "bg-amber-500",
+                        sadness: "bg-blue-500",
+                        anger: "bg-red-500",
+                        overwhelm: "bg-violet-500"
+                      };
+
+                      return (
+                        <div key={emotion} className="space-y-1">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-semibold text-slate-600 capitalize">{emotion}</span>
+                            <span className="font-mono text-slate-400 font-bold">{score}%</span>
+                          </div>
+                          <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full rounded-full transition-all duration-700 ${barColors[emotion] || "bg-indigo-500"}`}
+                              style={{ width: `${score}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="py-4 text-center text-xs text-slate-400 space-y-2">
+                      <HelpCircle className="w-6 h-6 text-slate-300 mx-auto" />
+                      <p>Send a message to let THERA analyze your session emotions in real-time.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Immediate Coping Suggestions panel */}
+              <div className="space-y-3 pt-4 border-t border-slate-100">
+                <div>
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Immediate Grounding Options</h4>
+                  <p className="text-[11px] text-slate-500">Need immediate release from anxious looping?</p>
+                </div>
+
+                <div className="space-y-2 pt-1">
+                  <button
+                    onClick={() => {
+                      onSelectBreathing();
+                      setShowMobileStats(false);
+                    }}
+                    className="w-full p-3 bg-slate-50 hover:bg-slate-100 text-left rounded-xl border border-slate-150 hover:border-indigo-300 transition-all text-xs flex items-center justify-between group cursor-pointer"
+                  >
+                    <div className="space-y-0.5">
+                      <span className="font-semibold text-slate-800 group-hover:text-indigo-600 transition-colors">Start Guided Breathing</span>
+                      <p className="text-slate-500 text-[10px]">Follow visual circular expansions to ground.</p>
+                    </div>
+                    <Wind className="w-4 h-4 text-indigo-600 group-hover:animate-pulse" />
+                  </button>
+
+                  <div className="p-3 bg-red-50 border border-red-100 rounded-xl flex gap-2.5">
+                    <AlertOctagon className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                    <div className="space-y-0.5 text-[10px] leading-relaxed">
+                      <span className="font-semibold text-red-700">Feeling Overwhelmed?</span>
+                      <p className="text-slate-600">If you are in severe distress, click "Emergency Help (988)" in the sidebar.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

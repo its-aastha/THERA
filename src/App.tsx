@@ -352,7 +352,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row text-slate-800 font-sans selection:bg-indigo-600 selection:text-white">
+    <div className="h-screen w-screen bg-slate-50 flex flex-col md:flex-row text-slate-800 font-sans selection:bg-indigo-600 selection:text-white overflow-hidden">
       
       {/* Side Navigation panel */}
       <Sidebar 
@@ -371,7 +371,7 @@ export default function App() {
       />
 
       {/* Main Sanctuary content workspace area */}
-      <main className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 max-h-screen">
+      <main className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 h-full">
         {currentTab === "dashboard" && (
           <Dashboard 
             userId={user.uid}

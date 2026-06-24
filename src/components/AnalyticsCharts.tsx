@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { MoodLog, JournalEntry } from "../types";
 import { Smile, Zap, Moon, Activity, Tag, HelpCircle, Calendar } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 interface AnalyticsChartsProps {
   moodLogs: MoodLog[];
@@ -8,10 +9,26 @@ interface AnalyticsChartsProps {
 }
 
 export default function AnalyticsCharts({ moodLogs, journals }: AnalyticsChartsProps) {
+  const [timeRange, setTimeRange] = useState<"7" | "30">("30");
+
   // Process logs in chronological order for the trend chart
   const sortedLogs = [...moodLogs]
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    .slice(-7); // Last 7 logged entries
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  const displayLogs = timeRange === "7" ? sortedLogs.slice(-7) : sortedLogs.slice(-30);
+
+  const chartData = displayLogs.map((log) => {
+    const d = new Date(log.date + "T00:00:00");
+    const formattedDate = d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    return {
+      date: formattedDate,
+      rawDate: log.date,
+      mood: log.mood,
+      energy: log.energy,
+      sleep: log.sleep,
+      notes: log.notes || "",
+    };
+  });
 
   // Calculate Average statistics
   const totalLogsCount = moodLogs.length;
@@ -105,40 +122,47 @@ export default function AnalyticsCharts({ moodLogs, journals }: AnalyticsChartsP
     overwhelm: Math.round(emotionSums.overwhelm / totalPointsCount),
   };
 
-  // Generate SVG Line Chart coordinates for mood
-  const chartHeight = 120;
-  const chartWidth = 500;
-  const paddingX = 40;
-  const paddingY = 20;
-
-  const getCoordinates = () => {
-    if (sortedLogs.length < 2) return "";
-    const activeWidth = chartWidth - paddingX * 2;
-    const activeHeight = chartHeight - paddingY * 2;
-    const stepX = activeWidth / (sortedLogs.length - 1);
-
-    return sortedLogs.map((log, index) => {
-      const x = paddingX + index * stepX;
-      // Mood is 1 to 5. Map 5 to top (paddingY) and 1 to bottom (chartHeight - paddingY)
-      const ratio = (log.mood - 1) / 4;
-      const y = chartHeight - paddingY - ratio * activeHeight;
-      return `${x},${y}`;
-    }).join(" ");
+  // Custom tooltips to present granular check-in elements beautifully
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      const moodDescriptions: { [key: number]: string } = {
+        1: "Struggling 💔",
+        2: "Heavy 🌧️",
+        3: "Balanced ⚖️",
+        4: "Peaceful ✨",
+        5: "Radiant 🌟"
+      };
+      return (
+        <div className="bg-white border border-slate-200/90 p-3 rounded-xl shadow-lg space-y-1.5 text-xs text-slate-700">
+          <p className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">{data.rawDate}</p>
+          <div className="flex items-center gap-1.5 pb-1 border-b border-slate-100">
+            <span className="font-semibold text-slate-500">Mood:</span>
+            <span className="font-bold text-indigo-600">{data.mood} / 5</span>
+            <span className="text-[11px] text-slate-400 font-medium">({moodDescriptions[data.mood] || "Steady"})</span>
+          </div>
+          {(data.energy !== undefined || data.sleep !== undefined) && (
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[10px] text-slate-500">
+              <div className="flex items-center gap-1">
+                <span>⚡ Energy:</span>
+                <span className="font-bold text-slate-700">{data.energy}/5</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span>🌙 Sleep:</span>
+                <span className="font-bold text-slate-700">{data.sleep}/5</span>
+              </div>
+            </div>
+          )}
+          {data.notes && (
+            <p className="text-[10px] text-slate-500 italic max-w-[180px] break-words pt-1 border-t border-slate-50 leading-relaxed">
+              "{data.notes}"
+            </p>
+          )}
+        </div>
+      );
+    }
+    return null;
   };
-
-  const points = getCoordinates();
-
-  // Create SVG Area points (down to bottom axis)
-  const getAreaCoordinates = () => {
-    if (sortedLogs.length < 2) return "";
-    const activeWidth = chartWidth - paddingX * 2;
-    const stepX = activeWidth / (sortedLogs.length - 1);
-    const coords = getCoordinates();
-    const lastX = paddingX + (sortedLogs.length - 1) * stepX;
-    return `${paddingX},${chartHeight - paddingY} ${coords} ${lastX},${chartHeight - paddingY}`;
-  };
-
-  const areaPoints = getAreaCoordinates();
 
   // Map mood value to a text color / description
   const getMoodString = (val: number) => {
@@ -222,111 +246,70 @@ export default function AnalyticsCharts({ moodLogs, journals }: AnalyticsChartsP
                 <Activity className="w-4 h-4 text-indigo-600" />
                 <span>Mood Resilience Trend</span>
               </h3>
-              <p className="text-xs text-slate-500">Visualization of your last 7 mood entries.</p>
+              <p className="text-xs text-slate-500">Visualizing wellness logs over the selected time window.</p>
             </div>
-            {sortedLogs.length > 0 && (
-              <span className="text-[10px] font-mono bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                Daily Flow
-              </span>
-            )}
+            
+            {/* Dynamic selector for days */}
+            <div className="flex items-center gap-1.5 bg-slate-50 p-1 rounded-lg border border-slate-200 text-[10px]">
+              <button
+                onClick={() => setTimeRange("7")}
+                className={`px-2 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+                  timeRange === "7"
+                    ? "bg-white text-indigo-600 shadow-xs border border-slate-200/50"
+                    : "text-slate-400 hover:text-slate-600"
+                }`}
+              >
+                7 Logs
+              </button>
+              <button
+                onClick={() => setTimeRange("30")}
+                className={`px-2 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+                  timeRange === "30"
+                    ? "bg-white text-indigo-600 shadow-xs border border-slate-200/50"
+                    : "text-slate-400 hover:text-slate-600"
+                }`}
+              >
+                30 Days
+              </button>
+            </div>
           </div>
 
           <div className="w-full bg-slate-50/50 rounded-xl border border-slate-100 p-4">
-            {sortedLogs.length >= 2 ? (
-              <div className="relative">
-                <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full h-auto overflow-visible">
-                  <defs>
-                    <linearGradient id="moodGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#4f46e5" stopOpacity="0.15" />
-                      <stop offset="100%" stopColor="#4f46e5" stopOpacity="0.00" />
-                    </linearGradient>
-                  </defs>
-
-                  {/* Horizontal Grid lines */}
-                  {[1, 2, 3, 4, 5].map((val) => {
-                    const ratio = (val - 1) / 4;
-                    const y = chartHeight - paddingY - ratio * (chartHeight - paddingY * 2);
-                    return (
-                      <g key={val}>
-                        <line 
-                          x1={paddingX} 
-                          y1={y} 
-                          x2={chartWidth - paddingX} 
-                          y2={y} 
-                          stroke="rgba(15,23,42,0.06)" 
-                          strokeDasharray="4"
-                        />
-                        <text 
-                          x={paddingX - 12} 
-                          y={y + 3} 
-                          fill="rgba(15,23,42,0.4)" 
-                          fontSize="9" 
-                          fontFamily="monospace"
-                          textAnchor="end"
-                        >
-                          {val}
-                        </text>
-                      </g>
-                    );
-                  })}
-
-                  {/* Gradient Area under the curve */}
-                  <polygon points={areaPoints} fill="url(#moodGradient)" />
-
-                  {/* Connected spline line */}
-                  <polyline
-                    fill="none"
-                    stroke="#4f46e5"
-                    strokeWidth="2.5"
-                    points={points}
-                    className="drop-shadow-[0_2px_8px_rgba(79,70,229,0.25)]"
-                  />
-
-                  {/* Node dots */}
-                  {sortedLogs.map((log, index) => {
-                    const activeWidth = chartWidth - paddingX * 2;
-                    const activeHeight = chartHeight - paddingY * 2;
-                    const stepX = activeWidth / (sortedLogs.length - 1);
-                    const x = paddingX + index * stepX;
-                    const ratio = (log.mood - 1) / 4;
-                    const y = chartHeight - paddingY - ratio * activeHeight;
-
-                    return (
-                      <g key={log.id} className="group cursor-pointer">
-                        <circle
-                          cx={x}
-                          cy={y}
-                          r="4"
-                          fill="#ffffff"
-                          stroke="#4f46e5"
-                          strokeWidth="2"
-                        />
-                        <circle
-                          cx={x}
-                          cy={y}
-                          r="1.5"
-                          fill="#4f46e5"
-                        />
-                      </g>
-                    );
-                  })}
-                </svg>
-
-                {/* X-Axis labels */}
-                <div className="flex justify-between px-[40px] mt-2">
-                  {sortedLogs.map((log) => {
-                    const d = new Date(log.date);
-                    const formattedDate = d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
-                    return (
-                      <span key={log.id} className="text-[9px] font-mono text-slate-400 uppercase">
-                        {formattedDate}
-                      </span>
-                    );
-                  })}
-                </div>
+            {displayLogs.length >= 2 ? (
+              <div className="w-full h-56 relative select-none">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={chartData}
+                    margin={{ top: 10, right: 10, left: -25, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,23,42,0.05)" vertical={false} />
+                    <XAxis 
+                      dataKey="date" 
+                      tickLine={false} 
+                      axisLine={false} 
+                      tick={{ fill: '#94a3b8', fontSize: 10, fontFamily: 'monospace' }} 
+                    />
+                    <YAxis 
+                      domain={[1, 5]} 
+                      tickCount={5}
+                      tickLine={false} 
+                      axisLine={false} 
+                      tick={{ fill: '#94a3b8', fontSize: 10, fontFamily: 'monospace' }} 
+                    />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Line
+                      type="monotone"
+                      dataKey="mood"
+                      stroke="#4f46e5"
+                      strokeWidth={3}
+                      dot={{ r: 4, strokeWidth: 1.5, stroke: '#4f46e5', fill: '#ffffff' }}
+                      activeDot={{ r: 6, strokeWidth: 0, fill: '#4f46e5' }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             ) : (
-              <div className="h-32 flex flex-col items-center justify-center text-center p-4">
+              <div className="h-56 flex flex-col items-center justify-center text-center p-4">
                 <HelpCircle className="w-8 h-8 text-slate-300 mb-2" />
                 <p className="text-xs text-slate-500">Log at least 2 wellness check-ins to unlock your mood trend line.</p>
               </div>
