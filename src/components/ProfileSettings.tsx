@@ -276,7 +276,7 @@ export default function ProfileSettings({ profile, onSave, onClearAllData }: Pro
                 onClick={() => setShowClearConfirm(true)}
                 className="w-full py-2.5 text-xs text-red-600 hover:text-red-700 font-semibold bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl transition-colors cursor-pointer text-center"
               >
-                Permanently Wipe MindEase Logs
+                Permanently Wipe THERA Logs
               </button>
             ) : (
               <div className="p-3.5 bg-red-55 border border-red-100 rounded-xl space-y-3.5">

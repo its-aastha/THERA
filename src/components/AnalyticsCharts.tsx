@@ -433,7 +433,7 @@ export default function AnalyticsCharts({ moodLogs, journals }: AnalyticsChartsP
           <div>
             <h3 className="text-sm font-sans font-bold text-slate-800 tracking-tight flex items-center gap-2">
               <Activity className="w-4 h-4 text-amber-600" />
-              <span>MindEase Suggested Coping Plan</span>
+              <span>THERA Suggested Coping Plan</span>
             </h3>
             <p className="text-xs text-slate-500">Therapeutic focus areas tailored to your current logs.</p>
           </div>
@@ -442,7 +442,7 @@ export default function AnalyticsCharts({ moodLogs, journals }: AnalyticsChartsP
             {Number(avgMood) < 3.2 && (
               <div className="p-3 bg-red-50 border border-red-100 rounded-xl space-y-1">
                 <span className="font-semibold text-red-700">Boost Emotional Support</span>
-                <p className="text-slate-600 text-[11px]">Your average mood indicates a heavy period. Try utilizing the MindEase AI Therapist chat to vent, or practice 4-7-8 Breathing twice daily to steady your heartbeat.</p>
+                <p className="text-slate-600 text-[11px]">Your average mood indicates a heavy period. Try utilizing the THERA AI Therapist chat to vent, or practice 4-7-8 Breathing twice daily to steady your heartbeat.</p>
               </div>
             )}
             

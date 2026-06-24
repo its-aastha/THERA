@@ -69,7 +69,7 @@ export default function CrisisModal({ isOpen, onClose }: CrisisModalProps) {
           <div className="p-4 bg-red-50 border border-red-100 rounded-xl text-red-700 text-sm space-y-2">
             <p className="font-medium">Please know you are not alone, and there is immediate help available.</p>
             <p className="text-red-600 leading-relaxed text-xs">
-              MindEase is an AI mental health assistant designed for reflection, wellness practices, and supportive listening. 
+              THERA is an AI mental health assistant designed for reflection, wellness practices, and supportive listening. 
               However, we are not equipped to handle medical emergencies or active self-harm crises. 
               If you or someone you know is in danger, please reach out to the professional resources below.
             </p>
@@ -123,7 +123,7 @@ export default function CrisisModal({ isOpen, onClose }: CrisisModalProps) {
               onClick={onClose}
               className="px-5 py-2 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all font-medium cursor-pointer"
             >
-              Return to MindEase Companion
+              Return to THERA Companion
             </button>
           </div>
         </div>

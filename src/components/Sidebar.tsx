@@ -52,9 +52,9 @@ export default function Sidebar({
       <div className="md:hidden flex items-center justify-between bg-white border-b border-slate-200 px-4 py-3 text-slate-800 sticky top-0 z-40">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white shadow-sm">
-            M
+            T
           </div>
-          <span className="font-sans font-semibold tracking-tight text-indigo-600">MindEase</span>
+          <span className="font-sans font-semibold tracking-tight text-indigo-600">THERA</span>
         </div>
         <div className="flex items-center gap-2">
           <button 
@@ -84,10 +84,10 @@ export default function Sidebar({
           <div className="p-6 border-b border-slate-100 hidden md:flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-white shadow-sm">
-                M
+                T
               </div>
               <div>
-                <h1 className="font-sans font-bold tracking-tight text-slate-800 leading-tight">MindEase</h1>
+                <h1 className="font-sans font-bold tracking-tight text-slate-800 leading-tight">THERA</h1>
                 <p className="text-[10px] font-mono tracking-wider text-indigo-600 uppercase">AI Therapist</p>
               </div>
             </div>

@@ -73,7 +73,7 @@ app.post("/api/chat", async (req, res) => {
     const userName = profile?.name || "there";
     const primaryFocus = profile?.primaryFocus || "general stress and well-being";
     
-    const systemInstruction = `You are MindEase, a deeply warm, compassionate, and emotionally intelligent human-like Therapist and Mental Health Companion. 
+    const systemInstruction = `You are THERA, a deeply warm, compassionate, and emotionally intelligent human-like Therapist and Mental Health Companion. 
 Your goal is to actively listen, validate the user's feelings, offer gentle therapeutic reflections (using techniques inspired by Cognitive Behavioral Therapy (CBT), Mindfulness, and Compassionate Inquiry), and provide structured, comforting support.
 
 User Details:
@@ -229,7 +229,7 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`[MindEase Backend] running on http://localhost:${PORT}`);
+    console.log(`[THERA Backend] running on http://localhost:${PORT}`);
   });
 }
 

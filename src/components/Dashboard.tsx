@@ -139,7 +139,7 @@ export default function Dashboard({
 
       {/* 2. Primary Analytics Dashboard */}
       <div className="space-y-4">
-        <h3 className="text-xs font-bold tracking-wider text-slate-400 uppercase">MindEase Health Analytics</h3>
+        <h3 className="text-xs font-bold tracking-wider text-slate-400 uppercase">THERA Health Analytics</h3>
         <AnalyticsCharts moodLogs={moodLogs} journals={journals} />
       </div>
 
@@ -177,7 +177,7 @@ export default function Dashboard({
             </div>
             <h4 className="font-sans font-bold text-slate-800 text-sm">Cognitive Journaling</h4>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Log daily private entries. MindEase automatically detects core cognitive distortions and extracts positive moments.
+              Log daily private entries. THERA automatically detects core cognitive distortions and extracts positive moments.
             </p>
           </div>
           <div className="flex items-center gap-1 text-[10px] text-violet-600 font-semibold group-hover:translate-x-1 transition-transform">

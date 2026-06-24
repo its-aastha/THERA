@@ -80,7 +80,7 @@ export default function TherapistChat({
               <Brain className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-sans font-bold text-slate-800 tracking-tight leading-tight">MindEase AI Therapist</h3>
+              <h3 className="font-sans font-bold text-slate-800 tracking-tight leading-tight">THERA AI Therapist</h3>
               <p className="text-[10px] font-mono tracking-wider text-indigo-600 uppercase">Interactive CBT & Reflection Mode</p>
             </div>
           </div>
@@ -153,7 +153,7 @@ export default function TherapistChat({
                 <span className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" />
                 <span className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce [animation-delay:0.2s]" />
                 <span className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce [animation-delay:0.4s]" />
-                <span className="font-mono text-slate-400 italic ml-1">MindEase reflecting...</span>
+                <span className="font-mono text-slate-400 italic ml-1">THERA reflecting...</span>
               </div>
             </div>
           )}
@@ -243,7 +243,7 @@ export default function TherapistChat({
             ) : (
               <div className="py-6 text-center text-xs text-slate-400 space-y-2">
                 <HelpCircle className="w-7 h-7 text-slate-300 mx-auto" />
-                <p>Send a message to let MindEase analyze your session emotions in real-time.</p>
+                <p>Send a message to let THERA analyze your session emotions in real-time.</p>
               </div>
             )}
           </div>

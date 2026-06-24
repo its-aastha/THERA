@@ -55,7 +55,7 @@ export default function App() {
         setUser(currentUser);
         // Load secure user specific datasets
         const isAnonymous = currentUser.isAnonymous;
-        const activeEmail = currentUser.email || (isAnonymous ? "guest@mindease.co" : `${currentUser.uid.substring(0,8)}@mindease.co`);
+        const activeEmail = currentUser.email || (isAnonymous ? "guest@thera.co" : `${currentUser.uid.substring(0,8)}@thera.co`);
         const userProfile = await getProfile(currentUser.uid, activeEmail);
         
         if (isAnonymous && (userProfile.name === "Friend" || !userProfile.name)) {
@@ -188,7 +188,7 @@ export default function App() {
         id: `chat_${Date.now()}_ai`,
         userId: user.uid,
         role: "assistant",
-        content: "I am holding a silent reflection with you. I may have disconnected from the MindEase cloud briefly, but please know I am right here listening. Please continue typing whenever you are ready.",
+        content: "I am holding a silent reflection with you. I may have disconnected from the THERA cloud briefly, but please know I am right here listening. Please continue typing whenever you are ready.",
         timestamp: Date.now(),
         suggestions: ["Grounding exercise", "Take a deep breath"],
       };
@@ -307,7 +307,7 @@ export default function App() {
     setLoading(true);
 
     const isAnonymous = authenticatedUser.isAnonymous || authenticatedUser.uid === "guest_user_123";
-    const activeEmail = authenticatedUser.email || (isAnonymous ? "guest@mindease.co" : `${authenticatedUser.uid.substring(0,8)}@mindease.co`);
+    const activeEmail = authenticatedUser.email || (isAnonymous ? "guest@thera.co" : `${authenticatedUser.uid.substring(0,8)}@thera.co`);
     
     // Load or create secure user profile
     const userProfile = await getProfile(authenticatedUser.uid, activeEmail);
@@ -336,7 +336,7 @@ export default function App() {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center font-sans">
         <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-        <span className="font-mono text-xs text-slate-500 mt-4 uppercase tracking-widest">Opening MindEase Sanctuary...</span>
+        <span className="font-mono text-xs text-slate-500 mt-4 uppercase tracking-widest">Opening THERA Sanctuary...</span>
       </div>
     );
   }

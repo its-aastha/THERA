@@ -59,7 +59,7 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
       // Fallback guest mode object if Firebase Auth is not configured or blocked by security
       onAuthSuccess({
         uid: "guest_user_123",
-        email: "guest@mindease.co",
+        email: "guest@thera.co",
         isAnonymous: true,
         displayName: "Guest"
       });
@@ -99,10 +99,10 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
         {/* Core Brand Header */}
         <div className="text-center space-y-3 mb-8">
           <div className="inline-flex w-12 h-12 rounded-2xl bg-indigo-600 text-white items-center justify-center font-bold text-xl shadow-md">
-            M
+            T
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-800 tracking-tight leading-tight">MindEase Sanctuary</h1>
+            <h1 className="text-2xl font-bold text-slate-800 tracking-tight leading-tight">THERA Sanctuary</h1>
             <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
               Your secure, therapeutic cognitive companion for stress relief, mental growth, and guided grounding.
             </p>
@@ -229,7 +229,7 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
             </p>
           ) : (
             <p>
-              New to MindEase?{" "}
+              New to THERA?{" "}
               <button 
                 onClick={() => setIsRegistering(true)} 
                 className="text-indigo-600 font-semibold hover:underline cursor-pointer hover:text-indigo-700"
