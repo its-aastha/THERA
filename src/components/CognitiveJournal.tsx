@@ -242,8 +242,8 @@ export default function CognitiveJournal({
               <p>Unsure how to start? Pick an inquiry:</p>
               <ul className="space-y-3 list-disc pl-4 text-slate-600">
                 <li><strong className="text-slate-800">Emotional Unload:</strong> "Right now, I am feeling incredibly... because..."</li>
-                <li><strong className="text-slate-300">Cognitive Reappraisal:</strong> Describe a recent setback, how you felt, and try asking: "What is an alternative, kinder way to interpret this?"</li>
-                <li><strong className="text-slate-300">Future Hope:</strong> What are you looking forward to, or what is one minor boundary you can draw tomorrow?</li>
+                <li><strong className="text-slate-800">Cognitive Reappraisal:</strong> Describe a recent setback, how you felt, and try asking: "What is an alternative, kinder way to interpret this?"</li>
+                <li><strong className="text-slate-800">Future Hope:</strong> What are you looking forward to, or what is one minor boundary you can draw tomorrow?</li>
               </ul>
               <div className="pt-2 border-t border-slate-100 text-[10px] text-slate-400">
                 AI Journal utilizes advanced Cognitive Behavioral Therapy (CBT) models to analyze cognitive distortion triggers.

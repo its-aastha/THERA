@@ -180,7 +180,7 @@ export default function AnalyticsCharts({ moodLogs, journals }: AnalyticsChartsP
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         
         {/* Mood Average */}
-        <div className="p-4 bg-white border border-slate-200 shadow-sm rounded-2xl flex items-center gap-3">
+        <div className="p-4 bg-white border border-slate-200 hover:border-indigo-200 shadow-sm hover:shadow-md rounded-2xl flex items-center gap-3 transition-all duration-300 ease-out hover:scale-[1.025]">
           <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center border border-indigo-100 text-indigo-600">
             <Smile className="w-5 h-5" />
           </div>
@@ -192,7 +192,7 @@ export default function AnalyticsCharts({ moodLogs, journals }: AnalyticsChartsP
         </div>
 
         {/* Energy Average */}
-        <div className="p-4 bg-white border border-slate-200 shadow-sm rounded-2xl flex items-center gap-3">
+        <div className="p-4 bg-white border border-slate-200 hover:border-amber-200 shadow-sm hover:shadow-md rounded-2xl flex items-center gap-3 transition-all duration-300 ease-out hover:scale-[1.025]">
           <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center border border-amber-100 text-amber-600">
             <Zap className="w-5 h-5" />
           </div>
@@ -206,7 +206,7 @@ export default function AnalyticsCharts({ moodLogs, journals }: AnalyticsChartsP
         </div>
 
         {/* Sleep Average */}
-        <div className="p-4 bg-white border border-slate-200 shadow-sm rounded-2xl flex items-center gap-3">
+        <div className="p-4 bg-white border border-slate-200 hover:border-violet-200 shadow-sm hover:shadow-md rounded-2xl flex items-center gap-3 transition-all duration-300 ease-out hover:scale-[1.025]">
           <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center border border-violet-100 text-violet-600">
             <Moon className="w-5 h-5" />
           </div>
@@ -220,7 +220,7 @@ export default function AnalyticsCharts({ moodLogs, journals }: AnalyticsChartsP
         </div>
 
         {/* Entries logged count */}
-        <div className="p-4 bg-white border border-slate-200 shadow-sm rounded-2xl flex items-center gap-3">
+        <div className="p-4 bg-white border border-slate-200 hover:border-emerald-200 shadow-sm hover:shadow-md rounded-2xl flex items-center gap-3 transition-all duration-300 ease-out hover:scale-[1.025]">
           <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center border border-emerald-100 text-emerald-600">
             <Calendar className="w-5 h-5" />
           </div>
@@ -239,7 +239,7 @@ export default function AnalyticsCharts({ moodLogs, journals }: AnalyticsChartsP
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* Mood Line Trend Chart (8 cols) */}
-        <div className="lg:col-span-8 p-6 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div className="lg:col-span-8 p-6 bg-white rounded-2xl border border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-md space-y-4 transition-all duration-300 ease-out hover:scale-[1.015]">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-sm font-sans font-bold text-slate-800 tracking-tight flex items-center gap-2">
@@ -318,7 +318,7 @@ export default function AnalyticsCharts({ moodLogs, journals }: AnalyticsChartsP
         </div>
 
         {/* Emotion Distribution (4 cols) */}
-        <div className="lg:col-span-4 p-6 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div className="lg:col-span-4 p-6 bg-white rounded-2xl border border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-md space-y-4 transition-all duration-300 ease-out hover:scale-[1.015]">
           <div>
             <h3 className="text-sm font-sans font-bold text-slate-800 tracking-tight flex items-center gap-2">
               <Tag className="w-4 h-4 text-violet-600" />
@@ -378,7 +378,7 @@ export default function AnalyticsCharts({ moodLogs, journals }: AnalyticsChartsP
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         {/* Top Triggers */}
-        <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div className="p-6 bg-white rounded-2xl border border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-md space-y-4 transition-all duration-300 ease-out hover:scale-[1.015]">
           <div>
             <h3 className="text-sm font-sans font-bold text-slate-800 tracking-tight flex items-center gap-2">
               <Tag className="w-4 h-4 text-emerald-600" />
@@ -412,7 +412,7 @@ export default function AnalyticsCharts({ moodLogs, journals }: AnalyticsChartsP
         </div>
 
         {/* Actionable recommendations based on averages */}
-        <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div className="p-6 bg-white rounded-2xl border border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-md space-y-4 transition-all duration-300 ease-out hover:scale-[1.015]">
           <div>
             <h3 className="text-sm font-sans font-bold text-slate-800 tracking-tight flex items-center gap-2">
               <Activity className="w-4 h-4 text-amber-600" />

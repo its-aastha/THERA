@@ -201,20 +201,42 @@ export default function ProfileSettings({ profile, onSave, onClearAllData }: Pro
                 <input
                   type="checkbox"
                   checked={notificationsEnabled}
-                  onChange={(e) => setNotificationsEnabled(e.target.checked)}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setNotificationsEnabled(checked);
+                    if (checked && "Notification" in window && Notification.permission !== "granted") {
+                      Notification.requestPermission();
+                    }
+                  }}
                   className="w-4 h-4 accent-indigo-600 cursor-pointer"
                 />
               </div>
 
               {notificationsEnabled && (
-                <div className="space-y-1.5 max-w-xs animate-in fade-in duration-150">
-                  <label className="text-[10px] font-mono tracking-wider text-slate-400 uppercase">Target Time</label>
-                  <input
-                    type="time"
-                    value={reminderTime}
-                    onChange={(e) => setReminderTime(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-indigo-500 cursor-pointer shadow-xs"
-                  />
+                <div className="flex flex-col sm:flex-row sm:items-end gap-4 animate-in fade-in duration-150">
+                  <div className="space-y-1.5 flex-1">
+                    <label className="text-[10px] font-mono tracking-wider text-slate-400 uppercase">Target Time</label>
+                    <input
+                      type="time"
+                      value={reminderTime}
+                      onChange={(e) => setReminderTime(e.target.value)}
+                      className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-indigo-500 cursor-pointer shadow-xs"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if ("Notification" in window && Notification.permission !== "granted") {
+                        Notification.requestPermission();
+                      }
+                      const event = new CustomEvent("trigger-breathing-reminder");
+                      window.dispatchEvent(event);
+                    }}
+                    className="py-2.5 px-4 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5 shrink-0 transition-colors h-[42px] mt-1 sm:mt-0"
+                  >
+                    <Bell className="w-3.5 h-3.5 text-slate-500" />
+                    <span>Send Test Reminder</span>
+                  </button>
                 </div>
               )}
             </div>

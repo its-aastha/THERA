@@ -6,6 +6,13 @@ export interface UserProfile {
   notificationsEnabled: boolean;
   privacyMode: boolean;
   theme?: "light" | "dark" | "high-contrast";
+  quizResult?: {
+    score: number;
+    anxietyLevel: "Low" | "Moderate" | "High";
+    takenAt: string;
+    answers: number[];
+    recommendedTherapy: string;
+  };
 }
 
 export interface Emotions {

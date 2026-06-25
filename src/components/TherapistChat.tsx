@@ -212,7 +212,7 @@ export default function TherapistChat({
       </div>
 
       {/* Side Emotional Mapping Display (4 Cols) - Hidden on mobile/tablets, shown on lg screens */}
-      <div className="lg:col-span-4 hidden lg:flex flex-col gap-6">
+      <div className="lg:col-span-4 hidden lg:flex flex-col gap-6 overflow-y-auto max-h-full pr-1">
         
         {/* Active Emotions analysis */}
         <div className="p-6 bg-white border border-slate-200 shadow-sm rounded-2xl space-y-4">

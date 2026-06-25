@@ -4,15 +4,11 @@ import {
   MessageSquare, 
   BookOpen, 
   Wind, 
-  User, 
   Settings, 
   LogOut, 
   AlertTriangle,
   Menu,
-  X,
-  Sun,
-  Moon,
-  Eye
+  X
 } from "lucide-react";
 
 interface SidebarProps {
@@ -76,7 +72,7 @@ export default function Sidebar({
       {/* Sidebar Container */}
       <aside className={`
         fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-slate-200 flex flex-col justify-between text-slate-600 transition-transform duration-300 ease-in-out
-        md:translate-x-0 md:static md:h-screen
+        md:translate-x-0 md:static md:h-screen overflow-y-auto
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
       `}>
         <div>
@@ -131,59 +127,7 @@ export default function Sidebar({
         </div>
 
         {/* Footer Area */}
-        <div className="p-4 border-t border-slate-100 space-y-3 bg-white">
-          {/* Quick Theme Selector */}
-          <div className="space-y-1.5 p-2 bg-slate-50/70 border border-slate-100 rounded-xl">
-            <span className="text-[9px] font-mono tracking-wider text-slate-400 uppercase block text-center">Appearance Theme</span>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => onThemeChange("light")}
-                className={`p-1.5 rounded-lg flex-1 flex justify-center transition-all cursor-pointer ${
-                  theme === "light" 
-                    ? "bg-white text-amber-500 shadow-xs border border-slate-200" 
-                    : "text-slate-400 hover:text-slate-600 hover:bg-slate-100/50"
-                }`}
-                title="Light Mode"
-              >
-                <Sun className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={() => onThemeChange("dark")}
-                className={`p-1.5 rounded-lg flex-1 flex justify-center transition-all cursor-pointer ${
-                  theme === "dark" 
-                    ? "bg-slate-700 text-indigo-400 shadow-xs border border-slate-600" 
-                    : "text-slate-400 hover:text-slate-600 hover:bg-slate-100/50"
-                }`}
-                title="Dark Mode"
-              >
-                <Moon className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={() => onThemeChange("high-contrast")}
-                className={`p-1.5 rounded-lg flex-1 flex justify-center transition-all cursor-pointer ${
-                  theme === "high-contrast" 
-                    ? "bg-black text-white shadow-xs border border-white" 
-                    : "text-slate-400 hover:text-slate-600 hover:bg-slate-100/50"
-                }`}
-                title="High Contrast Mode"
-              >
-                <Eye className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Quick Access Crisis Button */}
-          <button
-            onClick={() => {
-              onTriggerCrisis();
-              setIsOpen(false);
-            }}
-            className="w-full py-2 px-3 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 transition-all text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <AlertTriangle className="w-3.5 h-3.5" />
-            <span>Emergency Help (988)</span>
-          </button>
-
+        <div className="p-4 border-t border-slate-100 bg-white">
           <button
             onClick={onLogout}
             className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-all cursor-pointer"
