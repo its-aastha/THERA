@@ -460,8 +460,13 @@ export default function App() {
   }
 
   return (
-    <div className="h-screen w-screen bg-slate-50 flex flex-col md:flex-row text-slate-800 font-sans selection:bg-indigo-600 selection:text-white overflow-hidden">
+    <div className="h-screen w-screen bg-gradient-to-br from-slate-100 via-indigo-50/40 to-sky-50/50 flex flex-col md:flex-row text-slate-800 font-sans selection:bg-indigo-600 selection:text-white overflow-hidden relative md:p-0 gap-0">
       
+      {/* Immersive ambient glowing sensory bubbles */}
+      <div className="absolute -top-40 -left-40 w-96 h-96 bg-indigo-200/30 rounded-full blur-[110px] pointer-events-none" />
+      <div className="absolute top-[35%] right-10 w-80 h-80 bg-sky-200/25 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute -bottom-40 left-[25%] w-[450px] h-[450px] bg-pink-100/15 rounded-full blur-[130px] pointer-events-none" />
+
       {/* Side Navigation panel */}
       <Sidebar 
         currentTab={currentTab}
@@ -479,7 +484,7 @@ export default function App() {
       />
 
       {/* Main Sanctuary content workspace area */}
-      <main className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 h-full">
+      <main className="flex-1 overflow-y-auto p-5 md:p-8 space-y-6 h-full md:h-[calc(100vh-3rem)] md:my-6 md:mr-6 md:rounded-3xl md:bg-white/75 md:backdrop-blur-md md:border md:border-slate-200/80 md:shadow-2xl md:shadow-slate-200/10 transition-all duration-300 relative z-10">
         {currentTab === "dashboard" && (
           <Dashboard 
             userId={user.uid}

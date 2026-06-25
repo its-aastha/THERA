@@ -71,37 +71,37 @@ export default function Sidebar({
 
       {/* Sidebar Container */}
       <aside className={`
-        fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-slate-200 flex flex-col justify-between text-slate-600 transition-transform duration-300 ease-in-out
-        md:translate-x-0 md:static md:h-screen overflow-y-auto
+        fixed inset-y-0 left-0 z-30 w-64 bg-white/95 backdrop-blur-md border-r border-slate-200 flex flex-col justify-between text-slate-600 transition-transform duration-300 ease-in-out
+        md:translate-x-0 md:static md:h-[calc(100vh-3rem)] md:my-6 md:ml-6 md:rounded-3xl md:border md:border-slate-200/60 md:shadow-2xl md:shadow-slate-200/30 overflow-y-auto
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
       `}>
         <div>
           {/* Logo Brand area */}
           <div className="p-6 border-b border-slate-100 hidden md:flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-white shadow-sm">
+              <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-white shadow-md shadow-indigo-150 animate-pulse">
                 T
               </div>
               <div>
-                <h1 className="font-sans font-bold tracking-tight text-slate-800 leading-tight">THERA</h1>
-                <p className="text-[10px] font-mono tracking-wider text-indigo-600 uppercase">AI Therapist</p>
+                <h1 className="font-sans font-extrabold tracking-tight text-slate-850 leading-tight">THERA</h1>
+                <p className="text-[10px] font-mono tracking-widest text-indigo-600 uppercase font-bold">AI Sanctuary</p>
               </div>
             </div>
           </div>
 
           {/* User Brief Card */}
-          <div className="p-4 mx-4 mt-6 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center font-sans font-bold text-indigo-600 uppercase">
+          <div className="p-4 mx-4 mt-6 rounded-2xl bg-slate-50/50 border border-slate-100 flex items-center gap-3 shadow-xs">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-50 to-indigo-100 border border-indigo-200 flex items-center justify-center font-sans font-black text-indigo-600 uppercase shadow-inner">
               {userName.substring(0, 2)}
             </div>
             <div className="overflow-hidden">
-              <p className="text-sm font-semibold text-slate-800 truncate">{userName}</p>
-              <p className="text-xs text-slate-500 truncate">{userEmail}</p>
+              <p className="text-sm font-bold text-slate-800 truncate">{userName}</p>
+              <p className="text-[10px] font-mono text-slate-500 truncate">{userEmail}</p>
             </div>
           </div>
 
           {/* Navigation Items */}
-          <nav className="px-4 py-6 space-y-1.5">
+          <nav className="px-4 py-6 space-y-2">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = currentTab === item.id;
@@ -112,14 +112,14 @@ export default function Sidebar({
                     setCurrentTab(item.id);
                     setIsOpen(false);
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
                     isActive 
-                      ? "bg-indigo-50 text-indigo-700 border-l-2 border-indigo-600 font-semibold" 
-                      : "hover:bg-slate-50 text-slate-500 hover:text-slate-800"
+                      ? "bg-indigo-600 text-white shadow-lg shadow-indigo-100 border-r-4 border-indigo-400" 
+                      : "hover:bg-slate-50/80 text-slate-600 hover:text-slate-900"
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? "text-indigo-600" : "text-slate-400"}`} />
-                  <span>{item.label}</span>
+                  <Icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? "text-white" : "text-slate-400 group-hover:text-slate-600"}`} />
+                  <span className="truncate">{item.label}</span>
                 </button>
               );
             })}
@@ -127,12 +127,12 @@ export default function Sidebar({
         </div>
 
         {/* Footer Area */}
-        <div className="p-4 border-t border-slate-100 bg-white">
+        <div className="p-4 border-t border-slate-100 bg-transparent">
           <button
             onClick={onLogout}
-            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-all cursor-pointer"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold text-slate-500 hover:text-red-600 hover:bg-red-50/50 transition-all cursor-pointer"
           >
-            <LogOut className="w-3.5 h-3.5" />
+            <LogOut className="w-4 h-4 shrink-0" />
             <span>Sign Out</span>
           </button>
         </div>
