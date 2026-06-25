@@ -58,7 +58,7 @@ export default function ProfileSettings({ profile, onSave, onClearAllData }: Pro
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-8 p-1 font-sans">
+    <div className="w-full space-y-8 p-1 font-sans">
       
       {/* Header */}
       <div>
@@ -125,64 +125,6 @@ export default function ProfileSettings({ profile, onSave, onClearAllData }: Pro
                     </option>
                   ))}
                 </select>
-              </div>
-            </div>
-
-            {/* Visual Theme Setting */}
-            <div className="p-6 bg-white border border-slate-200 rounded-2xl space-y-4 shadow-sm">
-              <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100">
-                <Palette className="w-4 h-4 text-indigo-600" />
-                <h3 className="text-sm font-bold text-slate-800">Visual Theme Setting</h3>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3 pt-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setTheme("light");
-                    document.documentElement.setAttribute("data-theme", "light");
-                  }}
-                  className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all cursor-pointer ${
-                    theme === "light"
-                      ? "border-indigo-600 bg-indigo-50/40 text-indigo-700 font-semibold shadow-xs"
-                      : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                  }`}
-                >
-                  <Sun className="w-5 h-5 text-amber-500" />
-                  <span className="text-xs">Light Mode</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setTheme("dark");
-                    document.documentElement.setAttribute("data-theme", "dark");
-                  }}
-                  className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all cursor-pointer ${
-                    theme === "dark"
-                      ? "border-indigo-600 bg-indigo-50/40 text-indigo-700 font-semibold shadow-xs"
-                      : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                  }`}
-                >
-                  <Moon className="w-5 h-5 text-indigo-500" />
-                  <span className="text-xs">Dark Mode</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setTheme("high-contrast");
-                    document.documentElement.setAttribute("data-theme", "high-contrast");
-                  }}
-                  className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all cursor-pointer ${
-                    theme === "high-contrast"
-                      ? "border-indigo-600 bg-indigo-50/40 text-indigo-700 font-semibold shadow-xs"
-                      : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                  }`}
-                >
-                  <Eye className="w-5 h-5 text-emerald-600" />
-                  <span className="text-xs">High Contrast</span>
-                </button>
               </div>
             </div>
 

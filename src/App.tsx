@@ -125,7 +125,7 @@ export default function App() {
         if ("Notification" in window) {
           if (Notification.permission === "granted") {
             try {
-              new Notification("Time for a Breathing Break 🌸", {
+              new Notification("Time for a Breathing Break", {
                 body: "Take a peaceful minute for yourself. Start your quick breathing exercise.",
                 icon: "/favicon.ico"
               });
@@ -150,7 +150,7 @@ export default function App() {
       if ("Notification" in window) {
         if (Notification.permission === "granted") {
           try {
-            new Notification("Time for a Breathing Break 🌸", {
+            new Notification("Time for a Breathing Break", {
               body: "Take a peaceful minute for yourself. Start your quick breathing exercise.",
               icon: "/favicon.ico"
             });
@@ -161,7 +161,7 @@ export default function App() {
           Notification.requestPermission().then((permission) => {
             if (permission === "granted") {
               try {
-                new Notification("Time for a Breathing Break 🌸", {
+                new Notification("Time for a Breathing Break", {
                   body: "Take a peaceful minute for yourself. Start your quick breathing exercise.",
                   icon: "/favicon.ico"
                 });
@@ -460,12 +460,12 @@ export default function App() {
   }
 
   return (
-    <div className="h-screen w-screen bg-gradient-to-br from-slate-100 via-indigo-50/40 to-sky-50/50 flex flex-col md:flex-row text-slate-800 font-sans selection:bg-indigo-600 selection:text-white overflow-hidden relative md:p-0 gap-0">
+    <div className="min-h-screen w-full bg-gradient-to-br from-slate-50 via-slate-100 to-indigo-50/45 flex flex-col text-slate-850 font-sans selection:bg-indigo-600 selection:text-white relative md:p-0 gap-0">
       
-      {/* Immersive ambient glowing sensory bubbles */}
-      <div className="absolute -top-40 -left-40 w-96 h-96 bg-indigo-200/30 rounded-full blur-[110px] pointer-events-none" />
-      <div className="absolute top-[35%] right-10 w-80 h-80 bg-sky-200/25 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute -bottom-40 left-[25%] w-[450px] h-[450px] bg-pink-100/15 rounded-full blur-[130px] pointer-events-none" />
+      {/* Immersive ambient glowing sensory bubbles (Terracotta sand & Soft Sage Green) */}
+      <div className="absolute -top-40 -left-40 w-96 h-96 bg-indigo-200/25 rounded-full blur-[115px] pointer-events-none" />
+      <div className="absolute top-[35%] right-10 w-80 h-80 bg-emerald-100/30 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute -bottom-40 left-[25%] w-[450px] h-[450px] bg-indigo-100/20 rounded-full blur-[130px] pointer-events-none" />
 
       {/* Side Navigation panel */}
       <Sidebar 
@@ -474,17 +474,10 @@ export default function App() {
         userEmail={profile.email}
         userName={profile.name}
         onLogout={handleLogout}
-        onTriggerCrisis={() => setIsCrisisOpen(true)}
-        theme={profile.theme || "light"}
-        onThemeChange={async (newTheme) => {
-          const updatedProfile = { ...profile, theme: newTheme };
-          setProfile(updatedProfile);
-          await saveProfile(user.uid, updatedProfile);
-        }}
       />
 
       {/* Main Sanctuary content workspace area */}
-      <main className="flex-1 overflow-y-auto p-5 md:p-8 space-y-6 h-full md:h-[calc(100vh-3rem)] md:my-6 md:mr-6 md:rounded-3xl md:bg-white/75 md:backdrop-blur-md md:border md:border-slate-200/80 md:shadow-2xl md:shadow-slate-200/10 transition-all duration-300 relative z-10">
+      <main className="flex-1 p-5 md:p-8 space-y-6 w-full transition-all duration-300 relative z-10">
         {currentTab === "dashboard" && (
           <Dashboard 
             userId={user.uid}
@@ -565,7 +558,7 @@ export default function App() {
               </div>
               <div className="flex-1 space-y-1">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-extrabold text-slate-800 tracking-tight">Time for a Breathing Break! 🌸</h4>
+                  <h4 className="text-sm font-extrabold text-slate-800 tracking-tight">Time for a Breathing Break!</h4>
                   <button 
                     onClick={() => setShowBreathingReminder(false)}
                     className="text-slate-400 hover:text-slate-600 p-1 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"

@@ -81,7 +81,7 @@ export default function Dashboard({
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-8 p-1">
+    <div className="w-full space-y-8 p-1">
       
       {/* 1. Welcoming Banner with streak badge */}
       <div className="p-6 md:p-8 bg-gradient-to-r from-indigo-50/80 to-indigo-100/40 rounded-3xl border border-indigo-100/80 hover:border-indigo-200/90 relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm transition-all duration-300 ease-out hover:shadow-md">

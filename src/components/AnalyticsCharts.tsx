@@ -127,11 +127,11 @@ export default function AnalyticsCharts({ moodLogs, journals }: AnalyticsChartsP
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       const moodDescriptions: { [key: number]: string } = {
-        1: "Struggling 💔",
-        2: "Heavy 🌧️",
-        3: "Balanced ⚖️",
-        4: "Peaceful ✨",
-        5: "Radiant 🌟"
+        1: "Struggling",
+        2: "Heavy",
+        3: "Balanced",
+        4: "Peaceful",
+        5: "Radiant"
       };
       return (
         <div className="bg-white border border-slate-200/90 p-3 rounded-xl shadow-lg space-y-1.5 text-xs text-slate-700">
@@ -144,11 +144,11 @@ export default function AnalyticsCharts({ moodLogs, journals }: AnalyticsChartsP
           {(data.energy !== undefined || data.sleep !== undefined) && (
             <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[10px] text-slate-500">
               <div className="flex items-center gap-1">
-                <span>⚡ Energy:</span>
+                <span>Energy:</span>
                 <span className="font-bold text-slate-700">{data.energy}/5</span>
               </div>
               <div className="flex items-center gap-1">
-                <span>🌙 Sleep:</span>
+                <span>Sleep:</span>
                 <span className="font-bold text-slate-700">{data.sleep}/5</span>
               </div>
             </div>
@@ -166,11 +166,11 @@ export default function AnalyticsCharts({ moodLogs, journals }: AnalyticsChartsP
 
   // Map mood value to a text color / description
   const getMoodString = (val: number) => {
-    if (val >= 4.5) return "Radiant 🌟";
-    if (val >= 3.8) return "Peaceful ✨";
-    if (val >= 2.8) return "Balanced ⚖️";
-    if (val >= 1.8) return "Heavy 🌧️";
-    return "Struggling 💔";
+    if (val >= 4.5) return "Radiant";
+    if (val >= 3.8) return "Peaceful";
+    if (val >= 2.8) return "Balanced";
+    if (val >= 1.8) return "Heavy";
+    return "Struggling";
   };
 
   return (

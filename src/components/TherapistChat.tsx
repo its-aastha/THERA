@@ -69,7 +69,7 @@ export default function TherapistChat({
   const currentSuggestions = getLatestSuggestions();
 
   return (
-    <div className="w-full max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-100px)] lg:h-[calc(100vh-40px)] p-1">
+    <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-160px)] p-1">
       
       {/* Chat Thread Panel (8 Cols) */}
       <div className="lg:col-span-8 flex flex-col h-full bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden relative">

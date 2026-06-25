@@ -119,7 +119,7 @@ export default function CognitiveJournal({
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-6 p-1">
+    <div className="w-full space-y-6 p-1">
       
       {/* Tab Selectors */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-3">
