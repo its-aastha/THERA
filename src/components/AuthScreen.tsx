@@ -85,7 +85,7 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
       console.error("Authentication error:", err);
       let friendlyMessage = "Authentication failed. Please check your credentials.";
       if (err.code === "auth/operation-not-allowed") {
-        friendlyMessage = "Email & Password Authentication is currently disabled in your Firebase console. Please go to the Firebase Console -> Authentication -> Sign-in method, click 'Add new provider', and enable 'Email/Password'. In the meantime, you can sign in with Google or use the Guest Mode below.";
+        friendlyMessage = "Cloud Sync email authentication is currently disabled. Please continue with Google or log in with a local offline account.";
       } else if (err.code === "auth/invalid-credential") {
         friendlyMessage = "Incorrect email or password. Please try again.";
       } else if (err.code === "auth/email-already-in-use") {
@@ -131,7 +131,7 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
     } catch (err: any) {
       console.error("Google Auth Error:", err);
       if (err.code === "auth/operation-not-allowed") {
-        setError("Google Sign-In is not enabled in your Firebase Console. Please enable 'Google' under Authentication -> Sign-in method, or use the Guest Mode below.");
+        setError("Google Sign-In is currently disabled. Please use Local Offline mode instead.");
       } else {
         setError("Google authentication failed. Please try again or use Guest Mode.");
       }
@@ -201,12 +201,15 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
           )}
 
           {error && (
-            <div className="p-3.5 bg-red-50 border border-red-100 rounded-xl text-xs text-red-700 leading-relaxed">
+            <div className="p-3.5 bg-red-50 border border-red-100 rounded-xl text-xs text-red-700 leading-relaxed animate-in fade-in duration-200">
               {error}
-              {error.includes("disabled") && (
+              {!isLocalMode && (
                 <button
                   type="button"
-                  onClick={() => setIsLocalMode(true)}
+                  onClick={() => {
+                    setIsLocalMode(true);
+                    setError("");
+                  }}
                   className="mt-2 block text-[11px] font-bold text-indigo-700 hover:underline cursor-pointer"
                 >
                   Quick Switch to Local Offline Mode →
