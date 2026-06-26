@@ -368,7 +368,7 @@ export default function CognitiveJournal({
                                   </span>
                                   <ul className="list-disc pl-4 text-xs text-slate-600 mt-1.5 space-y-1">
                                     {entry.analysis.gratitudeItems.map((item, index) => (
-                                      <li key={index} className="italic text-emerald-850">{item}</li>
+                                      <li key={index} className="italic text-slate-800">{item}</li>
                                     ))}
                                   </ul>
                                 </div>
@@ -455,10 +455,10 @@ export default function CognitiveJournal({
                     key={item.id}
                     className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-xl relative overflow-hidden group hover:border-emerald-300 transition-all flex items-start gap-3"
                   >
-                    <Smile className="w-4.5 h-4.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <Smile className="w-4.5 h-4.5 text-emerald-700 shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-xs text-emerald-950 leading-relaxed font-serif italic">"{item.text}"</p>
-                      <span className="text-[9px] font-mono text-emerald-600/80 block mt-1.5">
+                      <p className="text-xs text-slate-800 leading-relaxed font-sans font-medium">"{item.text}"</p>
+                      <span className="text-[9px] font-mono text-emerald-700 block mt-1.5">
                         {new Date(item.date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
                       </span>
                     </div>
