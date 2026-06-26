@@ -368,6 +368,130 @@ export default function App() {
     setProfile(updated);
   };
 
+  // Backup: Export as JSON file
+  const handleExportBackup = () => {
+    if (!user || !profile) return;
+    
+    const backupData = {
+      version: "1.0",
+      exportedAt: new Date().toISOString(),
+      email: profile.email || user.email || "",
+      profile,
+      moodLogs,
+      journals,
+      gratitudeItems,
+      chatMessages
+    };
+
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+    const downloadAnchor = document.createElement("a");
+    downloadAnchor.setAttribute("href", dataStr);
+    
+    const dateStr = new Date().toISOString().split("T")[0];
+    downloadAnchor.setAttribute("download", `thera_backup_${profile.email || "account"}_${dateStr}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  };
+
+  // Backup: Import from JSON file
+  const handleImportBackup = async (file: File): Promise<string> => {
+    if (!user || !profile) {
+      throw new Error("No active account to restore data to.");
+    }
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const content = e.target?.result;
+          if (typeof content !== "string") {
+            throw new Error("Invalid backup file format.");
+          }
+
+          const parsed = JSON.parse(content);
+          if (!parsed || typeof parsed !== "object") {
+            throw new Error("Backup file is not a valid JSON structure.");
+          }
+
+          // We check if it looks like our backup structure
+          const importedProfile = parsed.profile;
+          if (!importedProfile) {
+            throw new Error("Missing profile object in backup.");
+          }
+
+          // Let's merge the profile
+          const mergedProfile: UserProfile = {
+            ...profile,
+            ...importedProfile,
+            email: profile.email || user.email || importedProfile.email || "", // preserve current email if available
+          };
+          
+          // Save and set profile
+          await saveProfile(user.uid, mergedProfile);
+          setProfile(mergedProfile);
+
+          // Restore Mood Logs
+          let processedMoods: MoodLog[] = [];
+          if (Array.isArray(parsed.moodLogs)) {
+            processedMoods = parsed.moodLogs.map((item: any) => ({
+              ...item,
+              userId: user.uid
+            }));
+            for (const log of processedMoods) {
+              await saveMoodLog(user.uid, log);
+            }
+            setMoodLogs(processedMoods);
+          }
+
+          // Restore Journals
+          let processedJournals: JournalEntry[] = [];
+          if (Array.isArray(parsed.journals)) {
+            processedJournals = parsed.journals.map((item: any) => ({
+              ...item,
+              userId: user.uid
+            }));
+            for (const entry of processedJournals) {
+              await saveJournalEntry(user.uid, entry);
+            }
+            setJournals(processedJournals);
+          }
+
+          // Restore Gratitude Items
+          let processedGratitude: GratitudeItem[] = [];
+          if (Array.isArray(parsed.gratitudeItems)) {
+            processedGratitude = parsed.gratitudeItems.map((item: any) => ({
+              ...item,
+              userId: user.uid
+            }));
+            // Save each item
+            for (const item of processedGratitude) {
+              await saveGratitudeItem(user.uid, item.text, item.date);
+            }
+            setGratitudeItems(processedGratitude);
+          }
+
+          // Restore Chat History
+          if (Array.isArray(parsed.chatMessages)) {
+            const processedChats = parsed.chatMessages.map((item: any) => ({
+              ...item,
+              userId: user.uid
+            }));
+            await saveChatHistory(user.uid, processedChats);
+            setChatMessages(processedChats);
+          }
+
+          resolve("Account data successfully restored and synchronized!");
+        } catch (err: any) {
+          console.error("Backup import failed:", err);
+          reject(err.message || "Failed to parse and restore backup file.");
+        }
+      };
+      reader.onerror = () => reject("Failed to read the backup file.");
+      reader.readAsText(file);
+    });
+  };
+
   // Clear data sovereignty
   const handleClearAllData = async () => {
     if (!user) return;
@@ -526,6 +650,8 @@ export default function App() {
             profile={profile}
             onSave={handleSaveProfile}
             onClearAllData={handleClearAllData}
+            onExportBackup={handleExportBackup}
+            onImportBackup={handleImportBackup}
           />
         )}
       </main>

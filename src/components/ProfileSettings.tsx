@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { UserProfile } from "../types";
-import { Settings, User, Bell, Shield, Database, Check, AlertTriangle, Info, Palette, Sun, Moon, Eye } from "lucide-react";
+import { Settings, User, Bell, Shield, Database, Check, AlertTriangle, Info, Palette, Sun, Moon, Eye, Download, Upload, FileJson } from "lucide-react";
 
 interface ProfileSettingsProps {
   profile: UserProfile;
   onSave: (updatedProfile: UserProfile) => Promise<void>;
   onClearAllData: () => Promise<void>;
+  onExportBackup: () => void;
+  onImportBackup: (file: File) => Promise<string>;
 }
 
 const FOCUS_AREAS = [
@@ -17,7 +19,13 @@ const FOCUS_AREAS = [
   "Grief and Trauma Healing"
 ];
 
-export default function ProfileSettings({ profile, onSave, onClearAllData }: ProfileSettingsProps) {
+export default function ProfileSettings({ 
+  profile, 
+  onSave, 
+  onClearAllData,
+  onExportBackup,
+  onImportBackup
+}: ProfileSettingsProps) {
   const [name, setName] = useState(profile.name || "");
   const [primaryFocus, setPrimaryFocus] = useState(profile.primaryFocus || FOCUS_AREAS[0]);
   const [reminderTime, setReminderTime] = useState(profile.reminderTime || "21:00");
@@ -27,6 +35,30 @@ export default function ProfileSettings({ profile, onSave, onClearAllData }: Pro
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importStatus, setImportStatus] = useState<{ type: "success" | "error" | null; message: string }>({ type: null, message: "" });
+
+  const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsImporting(true);
+    setImportStatus({ type: null, message: "" });
+
+    try {
+      const resultMsg = await onImportBackup(file);
+      setImportStatus({ type: "success", message: resultMsg });
+    } catch (err: any) {
+      setImportStatus({ type: "error", message: err.message || "Failed to restore backup file." });
+    } finally {
+      setIsImporting(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,60 +160,7 @@ export default function ProfileSettings({ profile, onSave, onClearAllData }: Pro
               </div>
             </div>
 
-            {/* 2. Notifications & Reminders */}
-            <div className="p-6 bg-white border border-slate-200 rounded-2xl space-y-4 shadow-sm">
-              <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100">
-                <Bell className="w-4 h-4 text-violet-600" />
-                <h3 className="text-sm font-bold text-slate-800">Mindfulness Reminders</h3>
-              </div>
 
-              <div className="flex items-center justify-between py-1">
-                <div className="space-y-0.5">
-                  <span className="text-xs font-semibold text-slate-800">Daily Reflection Prompts</span>
-                  <p className="text-slate-500 text-[10px]">Send local notification cues when it's time to check-in.</p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={notificationsEnabled}
-                  onChange={(e) => {
-                    const checked = e.target.checked;
-                    setNotificationsEnabled(checked);
-                    if (checked && "Notification" in window && Notification.permission !== "granted") {
-                      Notification.requestPermission();
-                    }
-                  }}
-                  className="w-4 h-4 accent-indigo-600 cursor-pointer"
-                />
-              </div>
-
-              {notificationsEnabled && (
-                <div className="flex flex-col sm:flex-row sm:items-end gap-4 animate-in fade-in duration-150">
-                  <div className="space-y-1.5 flex-1">
-                    <label className="text-[10px] font-mono tracking-wider text-slate-400 uppercase">Target Time</label>
-                    <input
-                      type="time"
-                      value={reminderTime}
-                      onChange={(e) => setReminderTime(e.target.value)}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-indigo-500 cursor-pointer shadow-xs"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if ("Notification" in window && Notification.permission !== "granted") {
-                        Notification.requestPermission();
-                      }
-                      const event = new CustomEvent("trigger-breathing-reminder");
-                      window.dispatchEvent(event);
-                    }}
-                    className="py-2.5 px-4 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5 shrink-0 transition-colors h-[42px] mt-1 sm:mt-0"
-                  >
-                    <Bell className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Send Test Reminder</span>
-                  </button>
-                </div>
-              )}
-            </div>
 
             {/* 3. Security & Privacy Toggle */}
             <div className="p-6 bg-white border border-slate-200 rounded-2xl space-y-4 shadow-sm">
@@ -223,58 +202,115 @@ export default function ProfileSettings({ profile, onSave, onClearAllData }: Pro
           </form>
         </div>
 
-        {/* Danger Data Sovereignty Zone (4 cols) */}
-        <div className="lg:col-span-4 p-5 bg-white border border-slate-200 rounded-2xl space-y-5 shadow-sm">
-          <div className="flex items-center gap-2 text-slate-800">
-            <Database className="w-4.5 h-4.5 text-red-600" />
-            <h3 className="font-sans font-bold text-xs tracking-wider uppercase">Data Sovereignty</h3>
-          </div>
-          
-          <p className="text-xs text-slate-500 leading-relaxed">
-            In compliance with patient confidentiality frameworks, we provide complete, non-recoverable wiping of all persistent states.
-          </p>
+        {/* Side Panel Widgets (4 cols) */}
+        <div className="lg:col-span-4 space-y-6">
 
-          <div className="pt-2 border-t border-slate-100 space-y-4">
-            {!showClearConfirm ? (
-              <button
-                onClick={() => setShowClearConfirm(true)}
-                className="w-full py-2.5 text-xs text-red-600 hover:text-red-700 font-semibold bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl transition-colors cursor-pointer text-center"
-              >
-                Permanently Wipe THERA Logs
-              </button>
-            ) : (
-              <div className="p-3.5 bg-red-55 border border-red-100 rounded-xl space-y-3.5">
-                <div className="flex gap-2 text-xs text-red-700">
-                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-red-600" />
-                  <p className="font-medium">Are you absolutely sure? All journals, chats, and moods will be deleted forever.</p>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => setShowClearConfirm(false)}
-                    className="py-1.5 text-xs font-semibold text-slate-500 bg-slate-100 hover:bg-slate-200 hover:text-slate-800 rounded-lg transition-colors cursor-pointer"
-                  >
-                    No, Cancel
-                  </button>
-                  <button
-                    onClick={handleClearAllConfirm}
-                    className="py-1.5 text-xs font-bold text-white bg-red-600 hover:bg-red-750 rounded-lg transition-colors cursor-pointer"
-                  >
-                    Yes, Wipe Data
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5 text-[11px] text-slate-500 shadow-xs">
-            <div className="flex items-center gap-1.5 font-semibold text-slate-700">
-              <Info className="w-3.5 h-3.5 text-indigo-600" />
-              <span>Hosting Detail</span>
+          {/* JSON Backup & Account Restore */}
+          <div className="p-5 bg-white border border-slate-200 rounded-2xl space-y-5 shadow-sm">
+            <div className="flex items-center gap-2 text-slate-800">
+              <FileJson className="w-5 h-5 text-indigo-600 animate-pulse" />
+              <h3 className="font-sans font-bold text-xs tracking-wider uppercase">JSON Account Backup</h3>
             </div>
-            <p className="leading-relaxed text-slate-500">
-              Your profile values are cached client-side and saved into secure sandboxed collections on Google Cloud Platform's Firestore.
+            
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Export all your personal journals, chats, mood logs, and profile preferences into a standard JSON file. Import it back anytime on any active account to restore your data.
             </p>
+
+            <div className="pt-2 border-t border-slate-100 space-y-3">
+              {importStatus.message && (
+                <div className={`p-3 rounded-xl text-xs font-semibold leading-relaxed ${importStatus.type === "success" ? "bg-emerald-50 border border-emerald-100 text-emerald-700" : "bg-red-50 border border-red-100 text-red-700"}`}>
+                  {importStatus.message}
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={onExportBackup}
+                className="w-full py-2.5 px-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-100 rounded-xl font-bold text-xs cursor-pointer flex items-center justify-center gap-2 transition-colors"
+              >
+                <Download className="w-4 h-4" />
+                <span>Export Account Data (JSON)</span>
+              </button>
+
+              <div className="relative">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  accept=".json"
+                  onChange={handleFileImport}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isImporting}
+                  className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl font-bold text-xs cursor-pointer flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                >
+                  {isImporting ? (
+                    <span className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Upload className="w-4 h-4 text-slate-500" />
+                  )}
+                  <span>Import & Restore Backup</span>
+                </button>
+              </div>
+            </div>
           </div>
+
+          {/* Danger Data Sovereignty Zone */}
+          <div className="p-5 bg-white border border-slate-200 rounded-2xl space-y-5 shadow-sm">
+            <div className="flex items-center gap-2 text-slate-800">
+              <Database className="w-4.5 h-4.5 text-red-600" />
+              <h3 className="font-sans font-bold text-xs tracking-wider uppercase">Data Sovereignty</h3>
+            </div>
+            
+            <p className="text-xs text-slate-500 leading-relaxed">
+              In compliance with patient confidentiality frameworks, we provide complete, non-recoverable wiping of all persistent states.
+            </p>
+
+            <div className="pt-2 border-t border-slate-100 space-y-4">
+              {!showClearConfirm ? (
+                <button
+                  onClick={() => setShowClearConfirm(true)}
+                  className="w-full py-2.5 text-xs text-red-600 hover:text-red-700 font-semibold bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl transition-colors cursor-pointer text-center"
+                >
+                  Permanently Wipe THERA Logs
+                </button>
+              ) : (
+                <div className="p-3.5 bg-red-55 border border-red-100 rounded-xl space-y-3.5">
+                  <div className="flex gap-2 text-xs text-red-700">
+                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-red-600" />
+                    <p className="font-medium">Are you absolutely sure? All journals, chats, and moods will be deleted forever.</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => setShowClearConfirm(false)}
+                      className="py-1.5 text-xs font-semibold text-slate-500 bg-slate-100 hover:bg-slate-200 hover:text-slate-800 rounded-lg transition-colors cursor-pointer"
+                    >
+                      No, Cancel
+                    </button>
+                    <button
+                      onClick={handleClearAllConfirm}
+                      className="py-1.5 text-xs font-bold text-white bg-red-600 hover:bg-red-750 rounded-lg transition-colors cursor-pointer"
+                    >
+                      Yes, Wipe Data
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5 text-[11px] text-slate-500 shadow-xs">
+              <div className="flex items-center gap-1.5 font-semibold text-slate-700">
+                <Info className="w-3.5 h-3.5 text-indigo-600" />
+                <span>Hosting Detail</span>
+              </div>
+              <p className="leading-relaxed text-slate-500">
+                Your profile values are cached client-side and saved into secure sandboxed collections on Google Cloud Platform's Firestore.
+              </p>
+            </div>
+          </div>
+
         </div>
 
       </div>

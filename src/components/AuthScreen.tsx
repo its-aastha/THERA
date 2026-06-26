@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../lib/firebase";
-import { Smile, Mail, Lock, Heart, Shield, Sparkles, User } from "lucide-react";
+import { Smile, Mail, Lock, Heart, Shield, Sparkles, User, Cloud, Database } from "lucide-react";
 
 interface AuthScreenProps {
   onAuthSuccess: (user: any) => void;
@@ -14,11 +14,64 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isLocalMode, setIsLocalMode] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
+
+    if (isLocalMode) {
+      setTimeout(() => {
+        try {
+          const accountsRaw = localStorage.getItem("local_accounts");
+          const accounts = accountsRaw ? JSON.parse(accountsRaw) : {};
+
+          if (isRegistering) {
+            const trimmedEmail = email.trim().toLowerCase();
+            if (accounts[trimmedEmail]) {
+              setError("This email is already registered locally. Try logging in instead.");
+              setLoading(false);
+              return;
+            }
+            if (password.length < 6) {
+              setError("Password should be at least 6 characters long.");
+              setLoading(false);
+              return;
+            }
+            accounts[trimmedEmail] = { password, name: name || email.split("@")[0] };
+            localStorage.setItem("local_accounts", JSON.stringify(accounts));
+            onAuthSuccess({
+              uid: `local_${btoa(trimmedEmail)}`,
+              email: trimmedEmail,
+              displayName: name || email.split("@")[0],
+              isLocalAccount: true,
+              isAnonymous: false
+            });
+          } else {
+            const trimmedEmail = email.trim().toLowerCase();
+            const userAcc = accounts[trimmedEmail];
+            if (!userAcc || userAcc.password !== password) {
+              setError("Incorrect email or password for this local offline account. Please try again.");
+              setLoading(false);
+              return;
+            }
+            onAuthSuccess({
+              uid: `local_${btoa(trimmedEmail)}`,
+              email: trimmedEmail,
+              displayName: userAcc.name || email.split("@")[0],
+              isLocalAccount: true,
+              isAnonymous: false
+            });
+          }
+        } catch (err) {
+          setError("An error occurred during local authentication fallback.");
+        } finally {
+          setLoading(false);
+        }
+      }, 600);
+      return;
+    }
 
     try {
       if (isRegistering) {
@@ -97,7 +150,7 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
       <div className="relative w-full max-w-md bg-white border border-slate-200 rounded-3xl p-8 md:p-10 shadow-xl animate-in fade-in zoom-in duration-300">
         
         {/* Core Brand Header */}
-        <div className="text-center space-y-3 mb-8">
+        <div className="text-center space-y-3 mb-6">
           <div className="inline-flex w-12 h-12 rounded-2xl bg-indigo-600 text-white items-center justify-center font-bold text-xl shadow-md">
             T
           </div>
@@ -109,11 +162,56 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
           </div>
         </div>
 
+        {/* Connection Type Toggle */}
+        <div className="flex bg-slate-100 p-1 rounded-xl mb-6 shadow-inner gap-1">
+          <button
+            type="button"
+            onClick={() => {
+              setIsLocalMode(false);
+              setError("");
+            }}
+            className={`flex-1 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${!isLocalMode ? "bg-white text-indigo-600 shadow-xs" : "text-slate-500 hover:text-slate-800"}`}
+          >
+            <Cloud className={`w-3.5 h-3.5 ${!isLocalMode ? "text-indigo-600" : "text-slate-400"}`} />
+            <span>Cloud Sync</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setIsLocalMode(true);
+              setError("");
+            }}
+            className={`flex-1 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${isLocalMode ? "bg-indigo-600 text-white shadow-xs" : "text-slate-500 hover:text-slate-800"}`}
+          >
+            <Database className={`w-3.5 h-3.5 ${isLocalMode ? "text-white" : "text-slate-400"}`} />
+            <span>Local Offline</span>
+          </button>
+        </div>
+
         {/* Action Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {isLocalMode && (
+            <div className="p-3 bg-indigo-50 border border-indigo-100/50 rounded-xl text-[10px] text-indigo-800 leading-relaxed flex items-start gap-2 animate-in fade-in duration-200">
+              <Database className="w-4 h-4 shrink-0 text-indigo-600 mt-0.5" />
+              <div>
+                <span className="font-bold block text-[11px] text-indigo-900 mb-0.5">Local Storage Account active</span>
+                All clinical sessions and journals will be kept offline. Use the Settings menu to backup as JSON or import to restore!
+              </div>
+            </div>
+          )}
+
           {error && (
             <div className="p-3.5 bg-red-50 border border-red-100 rounded-xl text-xs text-red-700 leading-relaxed">
               {error}
+              {error.includes("disabled") && (
+                <button
+                  type="button"
+                  onClick={() => setIsLocalMode(true)}
+                  className="mt-2 block text-[11px] font-bold text-indigo-700 hover:underline cursor-pointer"
+                >
+                  Quick Switch to Local Offline Mode →
+                </button>
+              )}
             </div>
           )}
 
@@ -172,7 +270,15 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
             {loading ? (
               <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : (
-              <span>{isRegistering ? "Create Sanctuary Account" : "Access Sanctuary"}</span>
+              <span>
+                {isLocalMode
+                  ? isRegistering
+                    ? "Create Local Account"
+                    : "Access Local Sanctuary"
+                  : isRegistering
+                  ? "Create Sanctuary Account"
+                  : "Access Sanctuary"}
+              </span>
             )}
           </button>
         </form>

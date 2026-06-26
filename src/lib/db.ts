@@ -35,6 +35,9 @@ function setLocal<T>(key: string, value: T): void {
 // 1. User Profile Operations
 export async function saveProfile(userId: string, profile: UserProfile): Promise<void> {
   setLocal(`profile_${userId}`, profile);
+  if (userId.startsWith("local_") || userId === "guest_user_123") {
+    return;
+  }
   try {
     const userRef = doc(db, "users", userId);
     await setDoc(userRef, profile, { merge: true });
@@ -56,6 +59,10 @@ export async function getProfile(userId: string, email: string): Promise<UserPro
     privacyMode: false,
     theme: "light",
   };
+
+  if (userId.startsWith("local_") || userId === "guest_user_123") {
+    return defaultProfile;
+  }
 
   try {
     const userRef = doc(db, "users", userId);
@@ -83,6 +90,10 @@ export async function saveMoodLog(userId: string, log: Omit<MoodLog, "id" | "use
   const updated = [...filtered, fullLog];
   setLocal(`moods_${userId}`, updated);
 
+  if (userId.startsWith("local_") || userId === "guest_user_123") {
+    return fullLog;
+  }
+
   try {
     const docRef = doc(db, "mood_logs", id);
     await setDoc(docRef, fullLog);
@@ -94,6 +105,9 @@ export async function saveMoodLog(userId: string, log: Omit<MoodLog, "id" | "use
 }
 
 export async function getMoodLogs(userId: string): Promise<MoodLog[]> {
+  if (userId.startsWith("local_") || userId === "guest_user_123") {
+    return getLocal<MoodLog[]>(`moods_${userId}`, []);
+  }
   try {
     const q = query(
       collection(db, "mood_logs"),
@@ -126,6 +140,10 @@ export async function saveJournalEntry(userId: string, entry: Omit<JournalEntry,
   const updated = [fullEntry, ...localEntries.filter((j) => j.id !== id)];
   setLocal(`journals_${userId}`, updated);
 
+  if (userId.startsWith("local_") || userId === "guest_user_123") {
+    return fullEntry;
+  }
+
   try {
     const docRef = doc(db, "journals", id);
     await setDoc(docRef, fullEntry);
@@ -137,6 +155,9 @@ export async function saveJournalEntry(userId: string, entry: Omit<JournalEntry,
 }
 
 export async function getJournalEntries(userId: string): Promise<JournalEntry[]> {
+  if (userId.startsWith("local_") || userId === "guest_user_123") {
+    return getLocal<JournalEntry[]>(`journals_${userId}`, []);
+  }
   try {
     const q = query(
       collection(db, "journals"),
@@ -165,6 +186,10 @@ export async function deleteJournalEntry(userId: string, id: string): Promise<vo
   const updated = localEntries.filter((j) => j.id !== id);
   setLocal(`journals_${userId}`, updated);
 
+  if (userId.startsWith("local_") || userId === "guest_user_123") {
+    return;
+  }
+
   try {
     const docRef = doc(db, "journals", id);
     await deleteDoc(docRef);
@@ -181,6 +206,10 @@ export async function saveGratitudeItem(userId: string, text: string, date: stri
   const localItems = getLocal<GratitudeItem[]>(`gratitude_${userId}`, []);
   setLocal(`gratitude_${userId}`, [item, ...localItems]);
 
+  if (userId.startsWith("local_") || userId === "guest_user_123") {
+    return item;
+  }
+
   try {
     const docRef = doc(db, "gratitude", id);
     await setDoc(docRef, item);
@@ -192,6 +221,9 @@ export async function saveGratitudeItem(userId: string, text: string, date: stri
 }
 
 export async function getGratitudeItems(userId: string): Promise<GratitudeItem[]> {
+  if (userId.startsWith("local_") || userId === "guest_user_123") {
+    return getLocal<GratitudeItem[]>(`gratitude_${userId}`, []);
+  }
   try {
     const q = query(
       collection(db, "gratitude"),
@@ -219,6 +251,10 @@ export async function getGratitudeItems(userId: string): Promise<GratitudeItem[]
 export async function saveChatHistory(userId: string, messages: ChatMessage[]): Promise<void> {
   setLocal(`chats_${userId}`, messages);
   
+  if (userId.startsWith("local_") || userId === "guest_user_123") {
+    return;
+  }
+
   try {
     // To avoid storing dozens of subdocs for chat, we store the full thread in a single document
     const threadRef = doc(db, "chat_threads", userId);
@@ -229,6 +265,9 @@ export async function saveChatHistory(userId: string, messages: ChatMessage[]): 
 }
 
 export async function getChatHistory(userId: string): Promise<ChatMessage[]> {
+  if (userId.startsWith("local_") || userId === "guest_user_123") {
+    return getLocal<ChatMessage[]>(`chats_${userId}`, []);
+  }
   try {
     const threadRef = doc(db, "chat_threads", userId);
     const snap = await getDoc(threadRef);
