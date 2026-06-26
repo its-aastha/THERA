@@ -186,6 +186,13 @@ export default function App() {
     } catch (err) {
       console.error("Sign out failed:", err);
     } finally {
+      setUser(null);
+      setProfile(null);
+      setMoodLogs([]);
+      setJournals([]);
+      setGratitudeItems([]);
+      setChatMessages([]);
+      setCurrentTab("dashboard");
       setLoading(false);
     }
   };
