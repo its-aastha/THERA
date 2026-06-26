@@ -1,13 +1,11 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { UserProfile } from "../types";
-import { Settings, User, Bell, Shield, Database, Check, AlertTriangle, Info, Palette, Sun, Moon, Eye, Download, Upload, FileJson } from "lucide-react";
+import { Settings, User, Bell, Shield, Database, Check, AlertTriangle, Info, Palette, Sun, Moon, Eye } from "lucide-react";
 
 interface ProfileSettingsProps {
   profile: UserProfile;
   onSave: (updatedProfile: UserProfile) => Promise<void>;
   onClearAllData: () => Promise<void>;
-  onExportBackup: () => void;
-  onImportBackup: (file: File) => Promise<string>;
 }
 
 const FOCUS_AREAS = [
@@ -22,9 +20,7 @@ const FOCUS_AREAS = [
 export default function ProfileSettings({ 
   profile, 
   onSave, 
-  onClearAllData,
-  onExportBackup,
-  onImportBackup
+  onClearAllData
 }: ProfileSettingsProps) {
   const [name, setName] = useState(profile.name || "");
   const [primaryFocus, setPrimaryFocus] = useState(profile.primaryFocus || FOCUS_AREAS[0]);
@@ -35,30 +31,6 @@ export default function ProfileSettings({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isImporting, setIsImporting] = useState(false);
-  const [importStatus, setImportStatus] = useState<{ type: "success" | "error" | null; message: string }>({ type: null, message: "" });
-
-  const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsImporting(true);
-    setImportStatus({ type: null, message: "" });
-
-    try {
-      const resultMsg = await onImportBackup(file);
-      setImportStatus({ type: "success", message: resultMsg });
-    } catch (err: any) {
-      setImportStatus({ type: "error", message: err.message || "Failed to restore backup file." });
-    } finally {
-      setIsImporting(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -204,58 +176,6 @@ export default function ProfileSettings({
 
         {/* Side Panel Widgets (4 cols) */}
         <div className="lg:col-span-4 space-y-6">
-
-          {/* JSON Backup & Account Restore */}
-          <div className="p-5 bg-white border border-slate-200 rounded-2xl space-y-5 shadow-sm">
-            <div className="flex items-center gap-2 text-slate-800">
-              <FileJson className="w-5 h-5 text-indigo-600 animate-pulse" />
-              <h3 className="font-sans font-bold text-xs tracking-wider uppercase">JSON Account Backup</h3>
-            </div>
-            
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Export all your personal journals, chats, mood logs, and profile preferences into a standard JSON file. Import it back anytime on any active account to restore your data.
-            </p>
-
-            <div className="pt-2 border-t border-slate-100 space-y-3">
-              {importStatus.message && (
-                <div className={`p-3 rounded-xl text-xs font-semibold leading-relaxed ${importStatus.type === "success" ? "bg-emerald-50 border border-emerald-100 text-emerald-700" : "bg-red-50 border border-red-100 text-red-700"}`}>
-                  {importStatus.message}
-                </div>
-              )}
-
-              <button
-                type="button"
-                onClick={onExportBackup}
-                className="w-full py-2.5 px-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-100 rounded-xl font-bold text-xs cursor-pointer flex items-center justify-center gap-2 transition-colors"
-              >
-                <Download className="w-4 h-4" />
-                <span>Export Account Data (JSON)</span>
-              </button>
-
-              <div className="relative">
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  accept=".json"
-                  onChange={handleFileImport}
-                  className="hidden"
-                />
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isImporting}
-                  className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl font-bold text-xs cursor-pointer flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-                >
-                  {isImporting ? (
-                    <span className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <Upload className="w-4 h-4 text-slate-500" />
-                  )}
-                  <span>Import & Restore Backup</span>
-                </button>
-              </div>
-            </div>
-          </div>
 
           {/* Danger Data Sovereignty Zone */}
           <div className="p-5 bg-white border border-slate-200 rounded-2xl space-y-5 shadow-sm">

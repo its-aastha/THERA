@@ -650,8 +650,6 @@ export default function App() {
             profile={profile}
             onSave={handleSaveProfile}
             onClearAllData={handleClearAllData}
-            onExportBackup={handleExportBackup}
-            onImportBackup={handleImportBackup}
           />
         )}
       </main>
