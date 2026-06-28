@@ -58,6 +58,15 @@ export default function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
+        // Restrict non-anonymous Firebase logins (like Google Sign-In) to the authorized administrator only
+        if (!currentUser.isAnonymous && currentUser.email && currentUser.email.toLowerCase() !== "valandastha@gmail.com") {
+          await signOut(auth);
+          setUser(null);
+          setProfile(null);
+          setLoading(false);
+          return;
+        }
+
         setUser(currentUser);
         // Load secure user specific datasets
         const isAnonymous = currentUser.isAnonymous;
