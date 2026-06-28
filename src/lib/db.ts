@@ -111,14 +111,16 @@ export async function getMoodLogs(userId: string): Promise<MoodLog[]> {
   try {
     const q = query(
       collection(db, "mood_logs"),
-      where("userId", "==", userId),
-      orderBy("date", "desc")
+      where("userId", "==", userId)
     );
     const snap = await getDocs(q);
     const logs: MoodLog[] = [];
     snap.forEach((d) => {
       logs.push(d.data() as MoodLog);
     });
+    
+    // Sort client-side to avoid requiring a Firestore composite index
+    logs.sort((a, b) => b.date.localeCompare(a.date));
     
     if (logs.length > 0) {
       setLocal(`moods_${userId}`, logs);
@@ -161,14 +163,16 @@ export async function getJournalEntries(userId: string): Promise<JournalEntry[]>
   try {
     const q = query(
       collection(db, "journals"),
-      where("userId", "==", userId),
-      orderBy("date", "desc")
+      where("userId", "==", userId)
     );
     const snap = await getDocs(q);
     const entries: JournalEntry[] = [];
     snap.forEach((d) => {
       entries.push(d.data() as JournalEntry);
     });
+
+    // Sort client-side to avoid requiring a Firestore composite index
+    entries.sort((a, b) => b.date.localeCompare(a.date));
 
     if (entries.length > 0) {
       setLocal(`journals_${userId}`, entries);
@@ -227,14 +231,16 @@ export async function getGratitudeItems(userId: string): Promise<GratitudeItem[]
   try {
     const q = query(
       collection(db, "gratitude"),
-      where("userId", "==", userId),
-      orderBy("date", "desc")
+      where("userId", "==", userId)
     );
     const snap = await getDocs(q);
     const items: GratitudeItem[] = [];
     snap.forEach((d) => {
       items.push(d.data() as GratitudeItem);
     });
+
+    // Sort client-side to avoid requiring a Firestore composite index
+    items.sort((a, b) => b.date.localeCompare(a.date));
 
     if (items.length > 0) {
       setLocal(`gratitude_${userId}`, items);

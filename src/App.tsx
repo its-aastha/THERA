@@ -62,23 +62,25 @@ export default function App() {
         // Load secure user specific datasets
         const isAnonymous = currentUser.isAnonymous;
         const activeEmail = currentUser.email || (isAnonymous ? "guest@thera.co" : `${currentUser.uid.substring(0,8)}@thera.co`);
-        const userProfile = await getProfile(currentUser.uid, activeEmail);
         
+        // Fetch profile first
+        const userProfile = await getProfile(currentUser.uid, activeEmail);
         if (isAnonymous && (userProfile.name === "Friend" || !userProfile.name)) {
           userProfile.name = "Guest Mindful Traveler";
         }
         setProfile(userProfile);
 
-        const moods = await getMoodLogs(currentUser.uid);
+        // Fetch remaining user datasets in parallel to maximize loading speed
+        const [moods, loadedJournals, gratitude, chat] = await Promise.all([
+          getMoodLogs(currentUser.uid),
+          getJournalEntries(currentUser.uid),
+          getGratitudeItems(currentUser.uid),
+          getChatHistory(currentUser.uid)
+        ]);
+
         setMoodLogs(moods);
-
-        const loadedJournals = await getJournalEntries(currentUser.uid);
         setJournals(loadedJournals);
-
-        const gratitude = await getGratitudeItems(currentUser.uid);
         setGratitudeItems(gratitude);
-
-        const chat = await getChatHistory(currentUser.uid);
         setChatMessages(chat);
       } else {
         setUser(null);
