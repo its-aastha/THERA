@@ -130,19 +130,13 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
       const provider = new GoogleAuthProvider();
       const credential = await signInWithPopup(auth, provider);
       
-      const userEmail = credential.user.email;
-      if (userEmail && userEmail.toLowerCase() !== "valandastha@gmail.com") {
-        await signOut(auth);
-        setError("Only the authorized administrator (valandastha@gmail.com) is permitted to log in using Google.");
-        setLoading(false);
-        return;
-      }
-      
       onAuthSuccess(credential.user);
     } catch (err: any) {
       console.error("Google Auth Error:", err);
       if (err.code === "auth/operation-not-allowed") {
-        setError("Google Sign-In is currently disabled. Please use Local Offline mode instead.");
+        setError("Google Sign-In is currently disabled. Please enable it in the Sign-in method tab of your Firebase console, or use Local Offline mode instead.");
+      } else if (err.code === "auth/unauthorized-domain") {
+        setError(`This preview domain (${window.location.hostname}) is not authorized in your Firebase project. Please copy "${window.location.hostname}" and add it to your Authorized Domains in the Firebase Console under Authentication > Settings > Authorized domains.`);
       } else {
         setError("Google authentication failed. Please try again or use Guest Mode.");
       }
