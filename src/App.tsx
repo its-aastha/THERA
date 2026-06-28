@@ -556,6 +556,7 @@ export default function App() {
     const chat = await getChatHistory(authenticatedUser.uid);
     setChatMessages(chat);
 
+    setCurrentTab("settings");
     setLoading(false);
   };
 
@@ -573,8 +574,8 @@ export default function App() {
     return <AuthScreen onAuthSuccess={handleAuthSuccess} />;
   }
 
-  // If authorized but stress quiz is not taken, display onboarding assessment
-  if (!profile.quizResult) {
+  // If authorized but stress quiz is not taken, display onboarding assessment (unless they are on the settings page)
+  if (!profile.quizResult && currentTab !== "settings") {
     return (
       <StressQuiz 
         userName={profile.name || "Friend"} 
