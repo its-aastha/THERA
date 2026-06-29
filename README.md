@@ -91,7 +91,3 @@ npm run start
 * Private User Data
 
 ---
-
-## Disclaimer
-
-THERA provides mental wellness support and is not a replacement for professional medical or mental health care.
