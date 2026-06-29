@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail, signOut } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../lib/firebase";
 import { Smile, Mail, Lock, Heart, Shield, Sparkles, User, Cloud, Database } from "lucide-react";
 
@@ -129,14 +129,11 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
     try {
       const provider = new GoogleAuthProvider();
       const credential = await signInWithPopup(auth, provider);
-      
       onAuthSuccess(credential.user);
     } catch (err: any) {
       console.error("Google Auth Error:", err);
       if (err.code === "auth/operation-not-allowed") {
-        setError("Google Sign-In is currently disabled. Please enable it in the Sign-in method tab of your Firebase console, or use Local Offline mode instead.");
-      } else if (err.code === "auth/unauthorized-domain") {
-        setError(`This preview domain (${window.location.hostname}) is not authorized in your Firebase project. Please copy "${window.location.hostname}" and add it to your Authorized Domains in the Firebase Console under Authentication > Settings > Authorized domains.`);
+        setError("Google Sign-In is currently disabled. Please use Local Offline mode instead.");
       } else {
         setError("Google authentication failed. Please try again or use Guest Mode.");
       }

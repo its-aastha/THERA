@@ -3,13 +3,13 @@ import { getAuth } from "firebase/auth";
 import { initializeFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAlF2v-vdAv7DsXcWtilh-ZMGZgNo8KQoQ",
-  authDomain: "thera-7b7e8.firebaseapp.com",
-  projectId: "thera-7b7e8",
-  storageBucket: "thera-7b7e8.firebasestorage.app",
-  messagingSenderId: "1016559879201",
-  appId: "1:1016559879201:web:31f9161aeb49277e958f60",
-  measurementId: "G-97HQVW95EF"
+  projectId: "triple-tine-0fj47",
+  appId: "1:31949615311:web:782d072ec7bd8228f247ba",
+  apiKey: "AIzaSyAQ3Flv5Fw_zjFpd2ng6aXzChLmivbiKuw",
+  authDomain: "triple-tine-0fj47.firebaseapp.com",
+  firestoreDatabaseId: "ai-studio-fc167e9e-e8c0-4c00-a234-17904082318f",
+  storageBucket: "triple-tine-0fj47.firebasestorage.app",
+  messagingSenderId: "31949615311"
 };
 
 // Initialize Firebase
@@ -18,5 +18,5 @@ const app = initializeApp(firebaseConfig);
 // Initialize Firebase Auth
 export const auth = getAuth(app);
 
-// Initialize Firestore (uses default database)
-export const db = initializeFirestore(app, {});
+// Initialize Firestore with custom databaseId
+export const db = initializeFirestore(app, {}, firebaseConfig.firestoreDatabaseId);

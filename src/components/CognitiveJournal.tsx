@@ -426,7 +426,7 @@ export default function CognitiveJournal({
                 required
                 value={customGratitude}
                 onChange={(e) => setCustomGratitude(e.target.value)}
-                className="w-full bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-indigo-500/80 focus:bg-[#031311] placeholder-slate-400"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-850 focus:outline-none focus:border-indigo-500/80 focus:bg-white"
               />
               <button
                 type="submit"
