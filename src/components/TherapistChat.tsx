@@ -197,7 +197,7 @@ export default function TherapistChat({
               disabled={isGenerating}
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              className="flex-1 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/80 focus:bg-white transition-colors disabled:opacity-50"
+              className="flex-1 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/80 focus:bg-slate-100 transition-colors disabled:opacity-50"
             />
             <button
               type="submit"
