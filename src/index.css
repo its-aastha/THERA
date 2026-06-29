@@ -64,22 +64,6 @@ html, body {
   color: #d5f5ee !important;
 }
 
-/* Global input, textarea, and select overrides to prevent white-on-white text issues */
-input[type="text"], input[type="email"], input[type="password"], textarea, select {
-  background-color: #031311 !important;
-  color: #f0fdfb !important;
-  border-color: #0b2622 !important;
-}
-input[type="text"]::placeholder, input[type="email"]::placeholder, input[type="password"]::placeholder, textarea::placeholder {
-  color: #429283 !important;
-}
-input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, textarea:focus, select:focus {
-  background-color: #031311 !important;
-  color: #f0fdfb !important;
-  border-color: #20dfc4 !important;
-  outline: none !important;
-}
-
 /* Global overrides for hardcoded bg-white elements to skin the whole site into Midnight Green */
 .bg-white {
   background-color: #051916 !important;
