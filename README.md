@@ -1,5 +1,9 @@
 # THERA - AI Therapist & Mental Health Companion
 
+## Live Demo
+
+🔗 **Live Demo:** https://thera-theta-five.vercel.app/
+
 ## About
 
 THERA is an AI-powered mental health web application that helps users improve their mental well-being. Users can chat with an AI therapist, track their mood, write journals, and practice breathing exercises.
