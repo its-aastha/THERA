@@ -94,6 +94,41 @@ input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focu
   backdrop-filter: blur(12px) !important;
 }
 
+.bg-slate-50,
+.bg-slate-50\/50,
+.bg-slate-100,
+.bg-slate-100\/50,
+.bg-slate-50\/40,
+.bg-slate-50\/70,
+.bg-indigo-50\/40,
+.min-h-screen.bg-slate-50 {
+  background-color: #051916 !important;
+}
+
+.bg-indigo-50 {
+  background-color: #07221e !important;
+  color: #FAFDFC !important;
+}
+
+.bg-indigo-50\/50 {
+  background-color: rgba(7, 34, 30, 0.5) !important;
+}
+
+.bg-emerald-50 {
+  background-color: #051c18 !important;
+  color: #FAFDFC !important;
+}
+
+.bg-red-50 {
+  background-color: #44110b !important;
+  color: #fcdcd6 !important;
+}
+
+.bg-amber-50 {
+  background-color: #3b220b !important;
+  color: #fcede0 !important;
+}
+
 .border-slate-200,
 .border-slate-100,
 .border-slate-200\/60,
