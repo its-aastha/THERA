@@ -421,32 +421,32 @@ export default function AnalyticsCharts({ moodLogs, journals }: AnalyticsChartsP
             <p className="text-xs text-slate-500">Therapeutic focus areas tailored to your current logs.</p>
           </div>
 
-          <div className="space-y-3 text-xs leading-relaxed text-slate-600">
+          <div className="space-y-3 text-xs leading-relaxed">
             {Number(avgMood) < 3.2 && (
-              <div className="p-3 bg-red-50 border border-red-100 rounded-xl space-y-1">
-                <span className="font-semibold text-red-700">Boost Emotional Support</span>
-                <p className="text-slate-600 text-[11px]">Your average mood indicates a heavy period. Try utilizing the THERA AI Therapist chat to vent, or practice 4-7-8 Breathing twice daily to steady your heartbeat.</p>
+              <div className="p-4 bg-red-950/40 border border-red-900/30 rounded-xl space-y-1.5 shadow-xs">
+                <span className="font-bold text-red-400 tracking-wide block uppercase text-[10px]">Boost Emotional Support</span>
+                <p className="text-red-100/90 text-xs leading-relaxed">Your average mood logs show you're going through a challenging period. Try opening a session with the THERA AI Therapist to express your thoughts, or use our 4-7-8 Breathing guide to help steady your physical tension.</p>
               </div>
             )}
             
             {Number(avgSleep) < 3.2 && (
-              <div className="p-3 bg-violet-50 border border-violet-100 rounded-xl space-y-1">
-                <span className="font-semibold text-violet-700">Optimize Wind-down Routines</span>
-                <p className="text-slate-600 text-[11px]">Restless sleep degrades daytime resilience. Use "Guided Breathing" for 5 minutes right before sleeping and consider setting a strict digital curfew.</p>
+              <div className="p-4 bg-violet-950/40 border border-violet-900/30 rounded-xl space-y-1.5 shadow-xs">
+                <span className="font-bold text-violet-400 tracking-wide block uppercase text-[10px]">Optimize Wind-down Routines</span>
+                <p className="text-violet-100/90 text-xs leading-relaxed">Restless sleep directly impacts daytime focus and emotional resilience. Try our Guided Breathing widget for 5 minutes before bed and consider establishing a screen-free digital curfew before sleep.</p>
               </div>
             )}
 
             {Number(avgEnergy) < 3.2 && (
-              <div className="p-3 bg-amber-50 border border-amber-100 rounded-xl space-y-1">
-                <span className="font-semibold text-amber-700">Introduce Minor Restoration breaks</span>
-                <p className="text-slate-600 text-[11px]">Drained reserves trigger tension. Integrate brief 3-minute "Equal Breathing" sessions during work to refresh, and write a single item in the gratitude journal to shift focus.</p>
+              <div className="p-4 bg-amber-950/40 border border-amber-900/30 rounded-xl space-y-1.5 shadow-xs">
+                <span className="font-bold text-amber-400 tracking-wide block uppercase text-[10px]">Introduce Minor Restoration Breaks</span>
+                <p className="text-amber-100/90 text-xs leading-relaxed">Drained energy levels can trigger physical stress. Try integrating a quick 3-minute 'Equal Breathing' pause during your day, or write down one small positive moment in your gratitude journal to gently shift focus.</p>
               </div>
             )}
 
             {Number(avgMood) >= 3.2 && Number(avgSleep) >= 3.2 && Number(avgEnergy) >= 3.2 && (
-              <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-xl space-y-1">
-                <span className="font-semibold text-emerald-700">Maintain Positive Momentum</span>
-                <p className="text-slate-600 text-[11px]">You are in a healthy, steady flow! Keep logging journals, record what is going well in the Gratitude segment, and explore deeper cognitive pattern review.</p>
+              <div className="p-4 bg-emerald-950/40 border border-emerald-900/30 rounded-xl space-y-1.5 shadow-xs">
+                <span className="font-bold text-emerald-400 tracking-wide block uppercase text-[10px]">Maintain Positive Momentum</span>
+                <p className="text-emerald-100/90 text-xs leading-relaxed">You are experiencing a healthy, steady flow! Maintain this great momentum by keeping up with your daily logs, expressing gratitude, and practicing mindful reflection.</p>
               </div>
             )}
           </div>
