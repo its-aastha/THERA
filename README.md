@@ -82,6 +82,30 @@ npm run start
 ```
 
 ---
+##  System Architecture
+
+```
+                                  +-------------------+
+                                  |    Client Web     |
+                                  |    (React 19)     |
+                                  +---------+---------+
+                                            |
+                         +------------------+------------------+
+                         | HTTP Requests                       | Firebase Web Auth
+                         v                                     v
+             +-----------+-----------+               +---------+---------+
+             |    Express Backend    |               |  Firebase Auth &  |
+             |  (Secure API Proxy)   |               | Firestore DB      |
+             +-----------+-----------+               +-------------------+
+                         |
+                         | SDK / Server-to-Server
+                         v
+             +-----------+-----------+
+             |   Google Gemini API   |
+             |  (CBT/Journal Model)  |
+             +-----------------------+
+```
+
 
 ## Security
 
